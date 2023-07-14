@@ -1,6 +1,6 @@
 require("dotenv").config();
 const Users = require("../../models/Profile");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jsonwebtoken = require("jsonwebtoken");
 const { kirimEmail } = require("../../helpers/UserHelpers");
