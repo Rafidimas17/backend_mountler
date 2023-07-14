@@ -124,7 +124,7 @@ describe("Item API Testing", () => {
         assert.equal(res.body.message,'Failed to fetch current weather data')
       }
       else if(res.status===402){
-        assert.equal(res.body.message,'Item Saat Ini Tidak Tersedia')
+        assert.equal(res.body.message,'Item saat ini Tidak Tersedia')
       }
       else if(res.status===500){
         assert.equal(res.body.message,'Item Tidak Tersedia')
