@@ -177,15 +177,15 @@ module.exports = {
               })
               .catch((error) => {
                 // console.error(error);
-                res.status(500).json("Failed to convert temperature");
+                res.status(404).json("Failed to convert temperature");
               });
           } else {
-            res.status(500).json("Failed to fetch current weather data");
+            res.status(401).json("Failed to fetch current weather data");
           }
         })
         .catch((err) => {
           // console.error(err);
-          res.status(500).json({
+          res.status(402).json({
             message:"Item Tidak Tersedia"
           });
         });
