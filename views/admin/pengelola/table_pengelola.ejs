@@ -1,0 +1,48 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add_modal"
+            data-whatever="@mdo">Tambah Pengelola</button>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Nama Gunung </th>
+                        <th>No Telepon</th>
+                        <th>Alamat</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    
+                    <% const userAdmin=users.filter(user=>user.role.toLowerCase()==="pengelola") %>                                     
+                    <% for(let i=0;i<userAdmin.length;i++){ %>
+                        <tr>
+                            <td><%= i+1  %></td>
+                            <td><%= userAdmin[i].username %></td>
+                            <td><%= userAdmin[i].organizer  %></td>
+                            <td><%= userAdmin[i].noPhone  %></td>
+                            <td><%= userAdmin[i].address  %></td>                           
+                            <td>
+                                <form action="/admin/pengelola/<%= userAdmin[i].id%>?_method=DELETE" method="POST">
+                                    <a href="javascript:void()" type='button'
+                                        class="btn btn-warning btn-circle btn-sm button-update" data-namebank="<%= userAdmin[i].
+                                        nameBank%>" data-name="<%= userAdmin[i].name %>" data-id="<%= userAdmin[i].id %>"
+                                        data-nomorrekening="<%= userAdmin[i].nomorRekening %>">
+                                        <i class="fa fa-edit"></i></a>
+                                    <button type="submit" class="btn btn-danger btn-circle btn-sm"><i
+                                            class="fa fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        <% } %>
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,128 @@
+{
+    "hero": {
+        "travelers": 1,
+        "treasures": 9,
+        "cities": 3
+    },
+    "mostPicked": [
+        {
+            "country": "Indonesia",
+            "unit": "night",
+            "imageId": [
+                {
+                    "_id": "647d8fbcaf1bcb344448e753",
+                    "imageUrl": "images/1685950396856.jpg"
+                },
+                {
+                    "_id": "647d8fbdaf1bcb344448e754",
+                    "imageUrl": "images/1685950396886.jpg"
+                },
+                {
+                    "_id": "647d8fbdaf1bcb344448e755",
+                    "imageUrl": "images/1685950396896.jpg"
+                },
+                {
+                    "_id": "647d8fbdaf1bcb344448e756",
+                    "imageUrl": "images/1685950396905.jpg"
+                }
+            ],
+            "_id": "647d8fbcaf1bcb344448e752",
+            "title": "Gunung Merbabu",
+            "price": 14000,
+            "city": "Wonosobo"
+        },
+        {
+            "country": "Indonesia",
+            "unit": "night",
+            "imageId": [],
+            "_id": "647d90193113bb07dc0f4f1e",
+            "title": "Gunung Penanggungan",
+            "price": 12000,
+            "city": "Mojokerto"
+        },
+        {
+            "country": "Indonesia",
+            "unit": "night",
+            "imageId": [
+                {
+                    "_id": "647d90573113bb07dc0f4f20",
+                    "imageUrl": "images/1685950550918.jpg"
+                },
+                {
+                    "_id": "647d90573113bb07dc0f4f21",
+                    "imageUrl": "images/1685950550927.jpg"
+                },
+                {
+                    "_id": "647d90573113bb07dc0f4f22",
+                    "imageUrl": "images/1685950550968.jpg"
+                }
+            ],
+            "_id": "647d90563113bb07dc0f4f1f",
+            "title": "Gunung Semeru",
+            "price": 23000,
+            "city": "Lumajang"
+        }
+    ],
+    "category": [
+        {
+            "itemId": [],
+            "_id": "5e96cbe292b97300fc901111",
+            "name": "Houses with beauty backyard"
+        },
+        {
+            "itemId": [
+                {
+                    "country": "Indonesia",
+                    "isPopular": false,
+                    "imageId": [
+                        {
+                            "_id": "647d8fbcaf1bcb344448e753",
+                            "imageUrl": "images/1685950396856.jpg"
+                        }
+                    ],
+                    "_id": "647d8fbcaf1bcb344448e752",
+                    "title": "Gunung Merbabu",
+                    "city": "Wonosobo"
+                },
+                {
+                    "country": "Indonesia",
+                    "isPopular": false,
+                    "imageId": [
+                        {
+                            "_id": "647d90573113bb07dc0f4f20",
+                            "imageUrl": "images/1685950550918.jpg"
+                        }
+                    ],
+                    "_id": "647d90563113bb07dc0f4f1f",
+                    "title": "Gunung Semeru",
+                    "city": "Lumajang"
+                }
+            ],
+            "_id": "5e96cbe292b97300fc901112",
+            "name": "Hotels with large living room"
+        },
+        {
+            "itemId": [
+                {
+                    "country": "Indonesia",
+                    "isPopular": false,
+                    "imageId": [],
+                    "_id": "647d90193113bb07dc0f4f1e",
+                    "title": "Gunung Penanggungan",
+                    "city": "Mojokerto"
+                }
+            ],
+            "_id": "5e96cbe292b97300fc901113",
+            "name": "Apartment with kitchen"
+        }
+    ],
+    "testimonial": {
+        "_id": "asd1293uasdads1",
+        "imageUrl": "images/testimonial2.jpg",
+        "name": "Happy Family",
+        "rate": 4.55,
+        "content": "What a great trip with my family and I should try again next time soon ...",
+        "familyName": "Angga",
+        "familyOccupation": "Product Designer"
+    }
+}

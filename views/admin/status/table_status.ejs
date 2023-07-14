@@ -1,0 +1,48 @@
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <!-- <table> -->
+                    <thead>
+                      <tr>
+                        <th >No</th>
+                        <th>Invoice</th>
+                        <th>Track</th>
+                        <th>Tanggal Naik</th>
+                        <th>Tanggal Turun</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% booking.forEach((item, index) => { %>
+                        <% if (item.payments.status === 'Accept') { %>
+                        <tr>
+                          <td><%= index + 1 %></td>
+                          <td><%= item.invoice %></td>
+                          <td><%= item.track %></td>
+                          <td><%= item.bookingStartDate.toLocaleString().split(',')[0] %></td>
+                          <td><%= item.bookingEndDate.toLocaleString().split(',')[0] %></td>
+                          <td>
+                            <p class="bg-success text-white text-center" style="border-radius:20px;">
+
+                              <%= item.payments.status %>
+                            </p>
+                          </td>
+                          <td class="d-flex justify-content-center">
+                            <a href="/admin/status/show-detail-status/<%= item.id %>" class="btn btn-success btn-circle btn-sm button-update"><i
+                                class=" fas fa-eye"></i></a>
+                            <!-- Add your action buttons or links here -->
+                          </td>
+                        </tr>
+                        <% } %>
+                      <% }) %>
+                    </tbody>
+                  <!-- </table> -->
+                  
+            </table>
+        </div>
+    </div>
+</div>

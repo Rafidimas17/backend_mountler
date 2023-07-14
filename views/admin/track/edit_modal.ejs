@@ -1,0 +1,50 @@
+<!-- Modal -->
+<div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit Track</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/admin/track?_method=PUT" method="POST">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control track" name="track" placeholder="Enter name" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="name">Provinsi</label>
+            <input type="text" class="form-control province" name="province" placeholder="Enter name" required>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="regencyDropdown">Kabupaten</label>
+              <!-- <label for="name">Name</label> -->
+            <input type="text" class="form-control city" name="city" placeholder="Enter name" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="districtDropdown">Kecamatan</label>
+              <!-- <label for="name">Name</label> -->
+              <input type="text" class="form-control district" name="district" placeholder="Enter name" required>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="villageDropdown">Kelurahan</label>
+              <!-- <label for="name">Name</label> -->
+              <input type="text" class="form-control village" name="village" placeholder="Enter name" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <input type="hidden" class="id" name="id">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Tambah</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+category:{
+    name:String,
+}
+
+image:{
+    imageUrl:String,
+}
+
+item:{
+    name:String,
+    price:Number,
+    description:String,
+    country:String,
+    city:String,
+    isPopular:Boolean,
+    imageId:[{_id:ObjectId}],
+    featureId:[{_id:ObjectId}],
+    favoriteId:[{_id:ObjectId}],
+}
+
+feature:{
+    name:String,
+    qty:Number,
+    imageUrl:String,  
+}
+
+favorite:{
+    name:String,
+    type:String,
+    imageUrl:String,
+    isPopular:Boolean,
+}
+
+booking:{
+    bookingStartDate:Date,
+    bookingEndDate:Date,
+    itemId:[{
+        _id:ObjectId,
+        price:Number,
+        day:Number,
+    }]
+    memberId:[{_id:ObjectId}],
+    bankId:[{_id:ObjectId}],
+    proofPayment:String,
+    bankForm:String,
+    accountHolder:String,
+}
+member:{
+    name:String,
+    address:String,
+    noId:Number,
+    noPhone:Number,
+}
+bank:{
+    nameBank:String,
+    nomorRekening:String,
+    name:String,
+}

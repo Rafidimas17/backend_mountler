@@ -1,0 +1,146 @@
+{
+    "hero": {
+      "mountain": 20,
+      "hiker": 1921,
+      "cities": 20
+    },
+    "mostPicked": [
+      {
+        "_id": "asd1293uasdads1",
+        "name": "Merbabu Mountain",
+        "type": "Apartment",
+        "imageUrl": "/images/merbabu.jpg",
+        "country": "Center Java",
+        "city": "Magelang",
+        "price": "2",
+        "unit": "Day"
+      },
+      {
+        "_id": "2",
+        "name": "Semeru Mountain",
+        "type": "Hotel",
+        "imageUrl": "/images/semeru.jpg",
+        "country": "East Java",
+        "city": "Lumajang",
+        "price": "1.5",
+        "unit": "Day"
+      },
+      {
+        "_id": "asd1293uasdads1",
+        "name": "Rinjani Mountain",
+        "type": "Rumah",
+        "imageUrl": "/images/rinjani.jpg",
+        "country": "West Nusa Tenggara",
+        "city": "Lombok",
+        "price": "1.6",
+        "unit": "Day"
+      },
+      {
+        "_id": "asd1293uasdads1",
+        "name": "Sumbing Mountain",
+        "type": "Apartment",
+        "imageUrl": "/images/sumbing.jpg",
+        "country": "Center Java",
+        "city": "Magelang",
+        "price": "2",
+        "unit": "Day"
+      },
+      {
+        "_id": "asd1293uasdads1",
+        "name": "Prau Mountain",
+        "type": "Apartment",
+        "imageUrl": "/images/prau.jpg",
+        "country": "Center Java",
+        "city": "Wonosobo",
+        "price": "2.2",
+        "unit": "Day"
+      }
+    ],
+    "categories": [
+      {
+        "_id": "asd1293uasdads1",
+        "name": "Mountain with meadow",
+        "items": [
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Merbabu Mountain",
+            "imageUrl": "/images/merbabu.jpg",
+            "country": "Center Java",
+            "city": "Magelang",
+            "isPopular": true
+          },
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Semeru Mountain",
+            "imageUrl": "/images/semeru.jpg",
+            "country": "East Java",
+            "city": "Lumajang",
+            "isPopular": false
+          },
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Prau Mountain",
+            "imageUrl": "/images/prau.jpg",
+            "country": "Center Java",
+            "city": "Wonosobo",
+            "isPopular": false
+          },
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Rinjani Mountain",
+            "imageUrl": "/images/rinjani.jpg",
+            "country": "West Nusa Tenggara",
+            "city": "Lombok",
+            "isPopular": false
+          }
+        ]
+      },
+      {
+        "_id": "asd1293uasdads1",
+        "name": "Highest Mountain",
+        "items": [
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Merbabu Mountain",
+            "imageUrl": "/images/merbabu.jpg",
+            "country": "Center Java",
+            "city": "Magelang",
+            "isPopular": false
+          },
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Semeru Mountain",
+            "imageUrl": "/images/semeru.jpg",
+            "country": "East Java",
+            "city": "Lumajang",
+            "isPopular": false
+          },
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Prau Mountain",
+            "imageUrl": "/images/prau.jpg",
+            "country": "Center Java",
+            "city": "Wonosobo",
+            "isPopular": false
+          },
+          {
+            "_id": "asd1293uasdads1",
+            "name": "Rinjani Mountain",
+            "imageUrl": "/images/rinjani.jpg",
+            "country": "West Nusa Tenggara",
+            "city": "Lombok",
+            "isPopular": true
+          }
+        ]
+      }
+    ],
+    "testimonial": {
+      "_id": "asd1293uasdads1",
+      "imageUrl": "/images/testi.jpeg",
+      "name": "Happy Advanture",
+      "rate": 4.55,
+      "content": "What a great trip with my team and I should try again and again next time soon",
+      "familyName": "Fiersa Besar",
+      "familyOccupation": "Youtuber"
+    }
+  }

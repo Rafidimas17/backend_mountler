@@ -1,0 +1,42 @@
+<!-- Modal -->
+<div class="modal fade" id="add_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Tambah pengelola</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="/admin/pengelola?_method=PUT" method="POST">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="name">Username</label>
+            <input type="text" class="form-control username" name="username" placeholder="Masukan username" required>
+          </div>
+          <div class="form-group">
+            <label for="name">Password</label>
+            <input type="password" class="form-control password" name="password" placeholder="Masukan Password" required>
+          </div>
+          <div class="form-group">
+            <label for="name">Nama Gunung</label>
+            <input type="text" class="form-control namaGunung" name="namaGunung" placeholder="Masukan Nama Gunung" required>
+          </div>
+          <div class="form-group">
+            <label for="name">No Telepon</label>
+            <input type="text" class="form-control" name="noTelepon" placeholder="Masukan No Telepon" required>
+          </div>
+          <div class="form-group">
+            <label for="name">Alamat</label>
+            <input type="text" class="form-control" name="alamat" placeholder="Masukan Alamat">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary">Tambah</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
