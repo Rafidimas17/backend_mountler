@@ -108,4 +108,11 @@ describe("Item API Testing", () => {
         done();
       });
   });
+  it('GET API Detail Page',(done)=>{
+    request(app)
+    .get("/api-v1/detail-page/649c182cfd615542d063d8ad")
+    .set("Authorization", `Bearer ${token}`)
+    .expect(200)
+    done()
+  })
 });
