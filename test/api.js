@@ -120,7 +120,7 @@ describe("Item API Testing", () => {
         }
 
         if (res.status === 200) {
-          assert.equal(res.body.message, "Berhasil");
+          assert.equal(res.body.message, "Success");
         } else if (res.status === 404) {
           assert.equal(res.body.message, "Failed to convert temperature");
         } else if (res.status === 401) {
