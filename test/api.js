@@ -113,6 +113,27 @@ describe("Item API Testing", () => {
     .get("/api-v1/detail-page/649c182cfd615542d063d8ad")
     .set("Authorization", `Bearer ${token}`)
     .expect(200)
+    .end((err,res)=>{
+      if(res.status===200){
+        assert.equal(res.body.message,'Success')
+      }
+      else if(res.status===404){
+        assert.equal(res.body.message,'Failed to convert temperature')
+      }
+      else if(res.status===401){
+        assert.equal(res.body.message,'Failed to fetch current weather data')
+      }
+      else if(res.status===402){
+        assert.equal(res.body.message,'Item Saat Ini Tidak Tersedia')
+      }
+      else if(res.status===500){
+        assert.equal(res.body.message,'Item Tidak Tersedia')
+      }
+      else{
+        done(err)
+      }
+
+    })
     done()
   })
 });
