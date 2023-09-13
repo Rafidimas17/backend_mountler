@@ -21,55 +21,57 @@
         <h1 class="h3 mb-4 text-gray-800">Status</h1>
         <!-- End Heading -->
         <div class="progress-wrapper">
-            <div id="progress-bar-container">
-              <ul>
-                <li class="step step01 active">
-                  <div class="step-inner">Registrasi Diterima</div>
-                </li>
-                <li class="step step02">
-                  <div class="step-inner">Mulai Pendakian</div>
-                </li>
-                <li class="step step03">
-                  <div class="step-inner">Pendakian Selesai</div>
-                </li>
-              </ul>
-              <div id="line">
-                <div id="line-progress"></div>
+          <div id="progress-bar-container">
+            <ul>
+              <li class="step step01 active">
+                <div class="step-inner">Registrasi Diterima</div>
+              </li>
+              <li class="step step02">
+                <div class="step-inner">Mulai Pendakian</div>
+              </li>
+              <li class="step step03">
+                <div class="step-inner">Pendakian Selesai</div>
+              </li>
+            </ul>
+            <div id="line">
+              <div id="line-progress"></div>
+            </div>
+            <!-- progress-bar-container -->
+            <div id="progress-content-section">
+              <div class="section-content step1 active d-block">
+                <div id="reader"></div>
+                <div id="result"></div>
               </div>
-              <!-- progress-bar-container -->
-              <div id="progress-content-section">
-                <div class="section-content step1 active">
-                  <h2>Step 1</h2>
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  </p>
-                </div>
-                <div class="section-content step2">
-                  <h2>Step 2</h2>
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  </p>
-                </div>
-                <div class="section-content step3">
-                  <h2>Step 3</h2>
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  </p>
-                </div>
+              <div class="section-content step2">
+                <h2>Step 2</h2>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
+                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
+                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
+                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
+                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
+                </p>
+              </div>
+              <div class="section-content step3">
+                <h2>Step 3</h2>
+                <p>
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
+                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
+                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
+                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
+                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
+                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
+                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
+                </p>
               </div>
             </div>
-            <!-- progress-wrapper -->
           </div>
- 
+          <!-- progress-wrapper -->
+        </div>
+
 
       </div>
       <!-- /.container-fluid -->
@@ -110,6 +112,34 @@
   </div>
 </div>
 
-  
+<script>
+  const scanner = new Html5QrcodeScanner('reader', {
+    qrbox: {
+      width: 250,
+      height: 250,
+    },
+    fps: 20,
+  });
 
+
+  scanner.render(success, error);
+
+  function success(result) {
+    document.getElementById('result').innerHTML = `
+    <h2>Success!</h2>
+    <div>
+        <a href="/admin/status/scan-qr/?id=${result}" class="btn-primary">Start Pendakian</a>
+    </div>
+    `;
+
+    scanner.clear();
+    document.getElementById('reader').remove();
+  }
+
+
+  function error(err) {
+    console.error(err);
+  }
+</script>
+<script src="./node_modules/html5-qrcode/html5-qrcode.min.js"></script>
 <%- include('../../../partials/script.ejs') %>

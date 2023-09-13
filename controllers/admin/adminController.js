@@ -5,6 +5,7 @@ const Image = require("../../models/Image");
 const Track = require("../../models/Track");
 const Feature = require("../../models/Feature");
 const Activity = require("../../models/Activity");
+const NodeWebcam = require("node-webcam");
 const Booking = require("../../models/Booking");
 const Member = require("../../models/Member");
 const Users = require("../../models/Users");
@@ -77,9 +78,14 @@ module.exports = {
       const member = await Member.find();
       // console.log(item)
       const booking = await Booking.find({ _id: user.bookingId });
-      const filteredBooking = booking.filter(item => item.payments.status === 'Accept');
-      const mapItem = filteredBooking.map(item => item.total);
-      const total = mapItem.reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+      const filteredBooking = booking.filter(
+        (item) => item.payments.status === "Accept"
+      );
+      const mapItem = filteredBooking.map((item) => item.total);
+      const total = mapItem.reduce(
+        (accumulator, currentValue) => accumulator + currentValue,
+        0
+      );
       // console.log(sum)
       // const steps = [
       //   { label: "Step 1" },
@@ -115,7 +121,7 @@ module.exports = {
         title: "Cakrawala | Category",
         user,
       });
-    } catch (error) { 
+    } catch (error) {
       res.redirect("/admin/category");
     }
   },
@@ -123,7 +129,7 @@ module.exports = {
   addCategory: async (req, res) => {
     try {
       const { name } = req.body;
-      console.log(name)
+      console.log(name);
       // console.log(name);
       await Category.create({ name });
       req.flash("alertMessage", "Success Add Category");
@@ -655,7 +661,7 @@ module.exports = {
         booking,
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
       // res.redirect("/admin/booking");
     }
   },
@@ -890,8 +896,8 @@ module.exports = {
   viewStatus: async (req, res) => {
     try {
       const user = await Users.findOne({ _id: req.session.user.id });
-      const booking = await Booking.find({ _id: user.bookingId })
-      
+      const booking = await Booking.find({ _id: user.bookingId });
+
       // const user = await Users.findOne({ _id: req.session.user.id });
 
       // const item = await Item.findOne({ _id: user.itemId });
@@ -905,7 +911,7 @@ module.exports = {
         title: "Cakrawala | Status",
         alert,
         user,
-        booking
+        booking,
       });
     } catch (error) {
       req.flash("alertMessage", `${error.message}`);
@@ -920,7 +926,7 @@ module.exports = {
       const user = await Users.findOne({ _id: req.session.user.id });
       const alertStatus = req.flash("alertStatus");
       const alert = { message: alertMessage, status: alertStatus };
-      const booking=await Booking.findOne({bookingId:bookingId})
+      const booking = await Booking.findOne({ bookingId: bookingId });
       // const feature = await Feature.find({ itemId: itemId });
       // const  = await Activity.find({ itemId: itemId });
 
@@ -938,17 +944,25 @@ module.exports = {
       res.redirect(`/admin/status/show-detail-status/${bookingId}`);
     }
   },
-  deletePengelola:async(req,res)=>{
-    const {id}=req.params
-    const user=await Users.findOne({_id:id})
-    const item=await Item.findOne({_id:user.itemId[1]})
-    
+  deletePengelola: async (req, res) => {
+    const { id } = req.params;
+    const user = await Users.findOne({ _id: id });
+    const item = await Item.findOne({ _id: user.itemId[1] });
+
     // for(let i=0;i<user.itemId.length;i++){
     //   const item=await Item.find({_id:user.itemId[i]})
-      
-    // }
 
-    
-   
-  }
+    // }
+  },
+  scanQrCode: async (req, res) => {
+    const { id } = req.params;
+    try {
+      res.status(200).json({
+        message: "Berhasil akses endpoint",
+        data: id,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  },
 };
