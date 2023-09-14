@@ -95,7 +95,7 @@ module.exports = {
       };
 
       res.status(200).json({
-        message:"Success",
+        message: "Success",
         hero: {
           travelers: treveler.length,
           treasures: treasure.length,
@@ -107,7 +107,7 @@ module.exports = {
       });
     } catch (error) {
       // console.log(error);
-      res.status(404).json({ message:"Empty Item" });
+      res.status(404).json({ message: "Empty Item" });
     }
   },
 
@@ -168,7 +168,7 @@ module.exports = {
                 };
 
                 const responseData = {
-                  message:"Success",
+                  message: "Success",
                   ...data,
                   currentWeather,
                 };
@@ -186,12 +186,12 @@ module.exports = {
         .catch((err) => {
           // console.error(err);
           res.status(402).json({
-            message:"Item Tidak Tersedia"
+            message: "Item Tidak Tersedia",
           });
         });
     } catch (error) {
       res.status(500).json({
-        message:"Item Tidak Tersedia"
+        message: "Item Tidak Tersedia",
       });
     }
   },
@@ -208,9 +208,9 @@ module.exports = {
       members,
     } = req.body;
 
-    // if (!req.file) {
-    //   return res.status(401).json({ message: "Image Not Found" });
-    // }
+    if (!req.file) {
+      return res.status(401).json({ message: "Image Not Found" });
+    }
     if (
       idItem === undefined ||
       duration === undefined ||
@@ -235,7 +235,6 @@ module.exports = {
     const findTrack = await Track.findOne({ _id: idTrack });
     const trackName = findTrack.name;
     // console.log(trackName)
-   
 
     const invoice = await generateInvoice();
 
@@ -275,7 +274,7 @@ module.exports = {
         duration: duration,
       },
       payments: {
-        proofPayment: 'images/oke.jpg',
+        proofPayment: `images/${req.file.filename}`,
         bankFrom: bankName,
         accountHolder: nameAccountBank,
       },
@@ -290,8 +289,9 @@ module.exports = {
     console.log(userer);
     userer.bookingId.push(booking._id);
     await userer.save();
-    res.status(200).json({ 
-      message: "Success Booking", booking
-     });
+    res.status(200).json({
+      message: "Success Booking",
+      booking,
+    });
   },
 };

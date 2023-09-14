@@ -5,7 +5,7 @@ const auth = require("../../middleware/auth");
 
 router.get("/signin", adminController.viewSignin);
 router.post("/signin", adminController.actionSignin);
-
+router.use(auth);
 router.get("/logout", adminController.actionLogout);
 router.get("/dashboard", adminController.viewDashboard);
 //endpoint pengelola
@@ -61,7 +61,7 @@ router.get(
   "/status/show-detail-status/:bookingId",
   adminController.viewDetailStatus
 );
-router.get("/status/scan-qr/:id", adminController.scanQrCode);
+router.post("/status/scan-qr", adminController.scanQrCode);
 
 // router.get("/example", adminController.viewExample);
 module.exports = router;

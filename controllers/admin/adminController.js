@@ -21,12 +21,12 @@ module.exports = {
     try {
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       if (req.session.user == null || req.session.user == undefined) {
-        res.render("index", {
-          alert,
-          title: "Cakrawala | Login",
-        });
+        res.render("index", { alert, title: "Cakrawala | Login" });
       } else {
         res.redirect("/admin/dashboard");
       }
@@ -86,14 +86,8 @@ module.exports = {
         (accumulator, currentValue) => accumulator + currentValue,
         0
       );
-      // console.log(sum)
-      // const steps = [
-      //   { label: "Step 1" },
-      //   { label: "Step 2" },
-      //   { label: "Step 3" },
-      // ];
-
-      // const currentStep = 1;
+      // console.log(sum) const steps = [   { label: "Step 1" },   { label: "Step 2"
+      // },   { label: "Step 3" }, ]; const currentStep = 1;
 
       res.render("admin/dashboard/view_dashboard", {
         title: "Cakrawala | Dashboard",
@@ -114,7 +108,10 @@ module.exports = {
       const category = await Category.find();
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       res.render("admin/category/view_category", {
         category,
         alert,
@@ -178,11 +175,13 @@ module.exports = {
       const user = await Users.findOne({ _id: req.session.user.id });
       const item = await Item.find({ _id: user.itemId });
       const bank = await Bank.find({ itemId: item });
-      // console.log(bank);
-      // console.log(item)
+      // console.log(bank); console.log(item)
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       res.render("admin/bank/view_bank", {
         title: "Cakrawala | Bank",
         alert,
@@ -202,7 +201,8 @@ module.exports = {
       const user = await Users.findOne({ _id: req.session.user.id });
       // const userId = req.session.user.id;
       const item = await Item.findOne({ _id: user.itemId });
-      // const userId = req.session.user.id; // Ubah req.session.user.id menjadi userId
+      // const userId = req.session.user.id; // Ubah req.session.user.id menjadi
+      // userId
       const bankItem = {
         name,
         nameBank,
@@ -250,7 +250,16 @@ module.exports = {
     try {
       const { id } = req.params;
       await Bank.deleteOne({ _id: id });
-      await Item.updateMany({ bankId: id }, { $pull: { bankId: id } });
+      await Item.updateMany(
+        {
+          bankId: id,
+        },
+        {
+          $pull: {
+            bankId: id,
+          },
+        }
+      );
       req.flash("alertMessage", "Success Delete Bank");
       req.flash("alertStatus", "success");
       res.redirect("/admin/bank");
@@ -268,13 +277,15 @@ module.exports = {
       const item = await Item.find({ _id: user.itemId })
         .populate({ path: "imageId", select: "id imageUrl" })
         .populate({ path: "categoryId", select: "id name" });
-      //  console.log(item)
-      // const trackData = await Track.find();
+      //  console.log(item) const trackData = await Track.find();
 
       const category = await Category.find();
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       res.render("admin/item/view_item", {
         title: "Cakrawala | Item",
         category,
@@ -345,7 +356,10 @@ module.exports = {
       });
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       res.render("admin/item/view_item", {
         title: "Cakrawala | Show Image Item",
         alert,
@@ -371,7 +385,10 @@ module.exports = {
       const category = await Category.find();
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       console.log(item);
       res.render("admin/item/view_item", {
         title: "Cakrawala | Edit Item",
@@ -467,7 +484,10 @@ module.exports = {
       const alertMessage = req.flash("alertMessage");
       const user = await Users.findOne({ _id: req.session.user.id });
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
 
       const feature = await Feature.find({ itemId: itemId });
       const activity = await Activity.find({ itemId: itemId });
@@ -672,7 +692,10 @@ module.exports = {
     try {
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
 
       const booking = await Booking.findOne({ _id: id })
         .populate("memberId")
@@ -726,7 +749,10 @@ module.exports = {
       // console.log(item)
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       res.render("admin/track/view_track", {
         title: "Cakrawala | Track",
         alert,
@@ -813,7 +839,16 @@ module.exports = {
     try {
       const { id } = req.params;
       await Track.deleteOne({ _id: id });
-      await Item.updateMany({ trackId: id }, { $pull: { trackId: id } });
+      await Item.updateMany(
+        {
+          trackId: id,
+        },
+        {
+          $pull: {
+            trackId: id,
+          },
+        }
+      );
 
       req.flash("alertMessage", "Success delete Item");
       req.flash("alertStatus", "success");
@@ -849,13 +884,14 @@ module.exports = {
     try {
       const user = await Users.findOne({ _id: req.session.user.id });
       const users = await Users.find();
-      // const item = await Item.findOne({ _id: user.itemId });
-      // const track = await Track.find({ itemId: item });
-
-      // console.log(item)
+      // const item = await Item.findOne({ _id: user.itemId }); const track = await
+      // Track.find({ itemId: item }); console.log(item)
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       res.render("admin/pengelola/view_pengelola", {
         title: "Cakrawala | Pengelola",
         alert,
@@ -898,15 +934,15 @@ module.exports = {
       const user = await Users.findOne({ _id: req.session.user.id });
       const booking = await Booking.find({ _id: user.bookingId });
 
-      // const user = await Users.findOne({ _id: req.session.user.id });
-
-      // const item = await Item.findOne({ _id: user.itemId });
-      // const track = await Track.find({ itemId: item });
-
-      // console.log(item)
+      // const user = await Users.findOne({ _id: req.session.user.id }); const item =
+      // await Item.findOne({ _id: user.itemId }); const track = await Track.find({
+      // itemId: item }); console.log(item)
       const alertMessage = req.flash("alertMessage");
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       res.render("admin/status/view_status", {
         title: "Cakrawala | Status",
         alert,
@@ -925,17 +961,19 @@ module.exports = {
       const alertMessage = req.flash("alertMessage");
       const user = await Users.findOne({ _id: req.session.user.id });
       const alertStatus = req.flash("alertStatus");
-      const alert = { message: alertMessage, status: alertStatus };
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
       const booking = await Booking.findOne({ bookingId: bookingId });
-      // const feature = await Feature.find({ itemId: itemId });
-      // const  = await Activity.find({ itemId: itemId });
+      // const feature = await Feature.find({ itemId: itemId }); const  = await
+      // Activity.find({ itemId: itemId });
 
       res.render("admin/status/detail-status/view_detail_status", {
         title: "Cakrawala | Detail Status",
         alert,
         booking,
-        // feature,
-        // activity,
+        // feature, activity,
         user,
       });
     } catch (error) {
@@ -949,20 +987,51 @@ module.exports = {
     const user = await Users.findOne({ _id: id });
     const item = await Item.findOne({ _id: user.itemId[1] });
 
-    // for(let i=0;i<user.itemId.length;i++){
-    //   const item=await Item.find({_id:user.itemId[i]})
-
-    // }
+    // for(let i=0;i<user.itemId.length;i++){   const item=await
+    // Item.find({_id:user.itemId[i]}) }
   },
   scanQrCode: async (req, res) => {
-    const { id } = req.params;
+    const { idScan } = req.body;
+
     try {
-      res.status(200).json({
-        message: "Berhasil akses endpoint",
-        data: id,
-      });
+      // Cari data booking berdasarkan _id
+      const booking = await Booking.findOne({ _id: idScan });
+      const user = await Users.findOne({ _id: req.session.user.id });
+
+      if (!user) {
+        return res.status(401).json({ error: "Pengguna tidak ditemukan" });
+      }
+      // Periksa apakah booking ditemukan
+      if (!booking) {
+        // Jika tidak ditemukan, kembalikan respons dengan pesan kesalahan
+        return res.status(404).json({ error: "Booking tidak ditemukan" });
+      }
+
+      // Periksa apakah idScan sama dengan _id dalam payload
+      if (idScan === booking._id.toString()) {
+        // Jika sama, ubah status menjadi "Mendaki"
+        booking.status = "Mendaki";
+
+        // Simpan perubahan
+        await booking.save();
+
+        // Kembalikan respons dengan data yang telah diubah
+        return res
+          .status(200)
+          .json({
+            message: "Status berhasil diubah menjadi Mendaki",
+            updatedBooking: booking,
+          });
+      } else {
+        // Jika idScan tidak sama dengan _id, kembalikan respons dengan pesan kesalahan
+        return res.status(400).json({ error: "IdScan tidak cocok dengan _id" });
+      }
     } catch (error) {
       console.log(error);
+      // Tangani kesalahan lain jika terjadi
+      res
+        .status(500)
+        .json({ error: "Terjadi kesalahan dalam pengolahan data" });
     }
   },
 };

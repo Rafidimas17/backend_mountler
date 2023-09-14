@@ -122,23 +122,62 @@
   });
 
 
-  scanner.render(success, error);
+  scanner.render(success);
+
+  // Fungsi untuk mengenkripsi data dengan SHA-256
+
 
   function success(result) {
-    document.getElementById('result').innerHTML = `
-    <h2>Success!</h2>
-    <div>
-        <a href="/admin/status/scan-qr/?id=${result}" class="btn-primary">Start Pendakian</a>
-    </div>
-    `;
+    if (result !== null) {
+      // Buat objek yang akan dikirim sebagai data POST
+      const postData = {
+        idScan: result
+      };
 
-    scanner.clear();
-    document.getElementById('reader').remove();
-  }
+      // Konversi objek menjadi JSON
+      const postDataJSON = JSON.stringify(postData);
 
+      // Buat permintaan HTTP POST ke server
+      fetch('/admin/status/scan-qr', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: postDataJSON
+        })
+        .then(response => {
+          if (response.ok) {
+            // Jika permintaan sukses, tampilkan pesan sukses ke pengguna
+            window.location.href = '/admin/status';
 
-  function error(err) {
-    console.error(err);
+            // Bersihkan scanner jika diperlukan
+            scanner.clear();
+
+            // Hapus elemen pembaca jika diperlukan
+            const readerElement = document.getElementById('reader');
+            if (readerElement) {
+              readerElement.remove();
+            }
+          } else {
+            // Jika permintaan gagal, tampilkan pesan kesalahan ke pengguna
+            document.getElementById('result').innerHTML = `
+                    <h2>Error: Failed to send data to server</h2>
+                `;
+          }
+        })
+        .catch(error => {
+          console.error("Error sending POST request:", error);
+          // Handle error jika terjadi kesalahan saat mengirim permintaan
+          document.getElementById('result').innerHTML = `
+                <h2>Error: Failed to send data to server</h2>
+            `;
+        });
+    } else {
+      // Handle case when result is null (e.g., show an error message)
+      document.getElementById('result').innerHTML = `
+            <h2>Error: Result is null</h2>
+        `;
+    }
   }
 </script>
 <script src="./node_modules/html5-qrcode/html5-qrcode.min.js"></script>
