@@ -14,10 +14,6 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  status: {
-    type: String,
-    default: "Registrasi",
-  },
   track: {
     type: String,
     required: true,
@@ -75,6 +71,10 @@ const bookingSchema = new mongoose.Schema({
     status: {
       type: String,
       default: "Proses",
+    },
+    boarding: {
+      type: String,
+      default: "Registrasi",
     },
   },
 });

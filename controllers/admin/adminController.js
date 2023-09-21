@@ -1010,18 +1010,16 @@ module.exports = {
       // Periksa apakah idScan sama dengan _id dalam payload
       if (idScan === booking._id.toString()) {
         // Jika sama, ubah status menjadi "Mendaki"
-        booking.status = "Mendaki";
+        booking.payments.boarding = "Mendaki";
 
         // Simpan perubahan
         await booking.save();
 
         // Kembalikan respons dengan data yang telah diubah
-        return res
-          .status(200)
-          .json({
-            message: "Status berhasil diubah menjadi Mendaki",
-            updatedBooking: booking,
-          });
+        return res.status(200).json({
+          message: "Status berhasil diubah menjadi Mendaki",
+          updatedBooking: booking,
+        });
       } else {
         // Jika idScan tidak sama dengan _id, kembalikan respons dengan pesan kesalahan
         return res.status(400).json({ error: "IdScan tidak cocok dengan _id" });
