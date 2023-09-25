@@ -45,6 +45,7 @@
     "request": "^2.88.2",
     "startbootstrap-sb-admin-2": "^4.1.4",
     "supertest": "^6.3.3",
+    "sweetalert2": "^11.7.28",
     "util": "^0.12.5"
   }
 }

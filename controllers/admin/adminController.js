@@ -965,10 +965,10 @@ module.exports = {
         message: alertMessage,
         status: alertStatus,
       };
-      const booking = await Booking.findOne({ bookingId: bookingId });
+      const booking = await Booking.findOne({ _id: bookingId });
       // const feature = await Feature.find({ itemId: itemId }); const  = await
       // Activity.find({ itemId: itemId });
-
+      // console.log(booking);
       res.render("admin/status/detail-status/view_detail_status", {
         title: "Cakrawala | Detail Status",
         alert,

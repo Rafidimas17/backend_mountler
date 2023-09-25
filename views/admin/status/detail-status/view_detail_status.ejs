@@ -12,7 +12,7 @@
     <div id="content">
 
       <%- include('../../../partials/navbar.ejs') %>
-
+      <p class="halo" id="boarding-status" hidden value="<% booking.payments.boarding %>"></p>
       <!-- Begin Page Content -->
       <div class="container-fluid">
         <%- include('../../../partials/alert.ejs') %>
@@ -22,55 +22,41 @@
         <!-- End Heading -->
         <div class="progress-wrapper">
           <div id="progress-bar-container">
-            <ul>
-              <li class="step step01 active">
-                <div class="step-inner">Registrasi Diterima</div>
-              </li>
-              <li class="step step02">
-                <div class="step-inner">Mulai Pendakian</div>
-              </li>
-              <li class="step step03">
-                <div class="step-inner">Pendakian Selesai</div>
-              </li>
-            </ul>
-            <div id="line">
-              <div id="line-progress"></div>
+            <div class="stepper">
+              <div
+                class="step <%= booking.payments.boarding === "Registrasi" ? 'active' : '' %> <%= booking.payments.boarding === "Mendaki" || "Selesai"  ? 'completed' : '' %>">
+                <div class="step-label"></div>
+                <div class="step-description">Mulai Mendaki</div>
+              </div>
+              <div
+                class="step <%= booking.payments.boarding === "Mendaki" ? 'active' : '' %> <%= booking.payments.boarding === "Selesai" ? 'completed' : '' %>">
+                <div class="step-label"></div>
+                <div class="step-description">Mendaki</div>
+              </div>
+              <div
+                class="step <%= booking.payments.boarding === "Selesai" ? 'completed' : '' %> <%= booking.payments.boarding === "Selesai" ? 'completed' : '' %>">
+                <div class="step-label"></div>
+                <div class="step-description">Selesai Mendaki</div>
+              </div>
+
             </div>
             <!-- progress-bar-container -->
-            <div id="progress-content-section">
-              <div class="section-content step1 active d-block">
-                <div id="reader"></div>
+            <div id="progress-content-section d-block" class="halo" value="<% booking.payments.boarding %>">
+
+              <div
+                class="section-content step1 <% if (booking.payments.boarding === "Registrasi" || "Mendaki") { %>active<% } %> d-block">
+                <div id="reader"
+                  class="<% if (booking.payments.boarding === "Registrasi" || "Mendaki") { %>d-block<% } else { %>d-none<% } %>">
+                </div>
                 <div id="result"></div>
               </div>
-              <div class="section-content step2">
-                <h2>Step 2</h2>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
-                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
-                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                </p>
-              </div>
-              <div class="section-content step3">
-                <h2>Step 3</h2>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
-                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
-                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                  impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit.
-                  Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                </p>
-              </div>
             </div>
+
+
           </div>
           <!-- progress-wrapper -->
         </div>
+
 
 
       </div>
@@ -113,6 +99,15 @@
 </div>
 
 <script>
+  const haloElement = document.querySelector('.halo');
+  const readerElement = document.getElementById('reader');
+
+  // Set nilai atribut "value" dengan hasil ekspresi EJS
+  haloElement.setAttribute('value', '<%= booking.payments.boarding %>');
+
+  // Ambil nilai dari atribut "value" yang baru diatur
+  const getHalo = haloElement.getAttribute('value');
+
   const scanner = new Html5QrcodeScanner('reader', {
     qrbox: {
       width: 250,
@@ -121,11 +116,30 @@
     fps: 20,
   });
 
+  // Fungsi untuk mengaktifkan atau menonaktifkan pemindai QR code
+  function toggleQRCodeScanning(active) {
+    if (active) {
+      // Aktifkan pemindai QR code
+      readerElement.style.display = 'block';
+      scanner.render(success);
+    } else {
+      // Nonaktifkan pemindai QR code
+      readerElement.style.display = 'none';
+      scanner.clear();
+    }
+  }
 
-  scanner.render(success);
+  // Logika untuk menentukan kapan pemindai QR code harus aktif
+  if (getHalo === "Registrasi") {
+    // Aktifkan pemindai QR code saat posisi Registrasi
+    toggleQRCodeScanning(true);
+  } else if (getHalo === "Mendaki") {
+    // Nonaktifkan pemindai QR code untuk posisi lain
+    toggleQRCodeScanning(true);
+  } else {
+    toggleQRCodeScanning(false);
 
-  // Fungsi untuk mengenkripsi data dengan SHA-256
-
+  }
 
   function success(result) {
     if (result !== null) {
@@ -150,35 +164,30 @@
             // Jika permintaan sukses, tampilkan pesan sukses ke pengguna
             window.location.href = '/admin/status';
 
-            // Bersihkan scanner jika diperlukan
+            // Bersihkan pemindai jika diperlukan
             scanner.clear();
-
-            // Hapus elemen pembaca jika diperlukan
-            const readerElement = document.getElementById('reader');
-            if (readerElement) {
-              readerElement.remove();
-            }
           } else {
             // Jika permintaan gagal, tampilkan pesan kesalahan ke pengguna
             document.getElementById('result').innerHTML = `
-                    <h2>Error: Failed to send data to server</h2>
-                `;
+            <h2>Error: Failed to send data to server</h2>
+          `;
           }
         })
         .catch(error => {
           console.error("Error sending POST request:", error);
           // Handle error jika terjadi kesalahan saat mengirim permintaan
           document.getElementById('result').innerHTML = `
-                <h2>Error: Failed to send data to server</h2>
-            `;
+          <h2>Error: Failed to send data to server</h2>
+        `;
         });
     } else {
-      // Handle case when result is null (e.g., show an error message)
+      // Handle kasus ketika hasilnya null (misalnya, tampilkan pesan kesalahan)
       document.getElementById('result').innerHTML = `
-            <h2>Error: Result is null</h2>
-        `;
+        <h2>Error: Result is null</h2>
+      `;
     }
   }
 </script>
+
 <script src="./node_modules/html5-qrcode/html5-qrcode.min.js"></script>
 <%- include('../../../partials/script.ejs') %>
