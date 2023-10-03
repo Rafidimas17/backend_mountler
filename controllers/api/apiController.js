@@ -2,6 +2,7 @@ const Item = require("../../models/Item");
 const Treveler = require("../../models/Member");
 const Category = require("../../models/Category");
 const Booking = require("../../models/Booking");
+const Equipment = require("../../models/Equipment");
 const Users = require("../../models/Users");
 const Member = require("../../models/Member");
 const axios = require("axios");
@@ -34,6 +35,37 @@ async function generateInvoice() {
 async function convertCelcius(value) {
   const celcius = ((value - 32) * 5) / 9;
   return celcius;
+}
+
+async function fetchDataPayment(total, invoice) {
+  const data_payment = JSON.stringify({
+    transaction_details: {
+      order_id: invoice,
+      gross_amount: total,
+    },
+  });
+
+  let config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: "https://app.sandbox.midtrans.com/snap/v1/transactions",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization:
+        "Basic U0ItTWlkLXNlcnZlci1IT0Fvd3pFVkhXQld5bElNUGttZlJPQVE6",
+    },
+    data: data_payment,
+  };
+
+  try {
+    const response = await axios.request(config);
+    const data_pay = JSON.stringify(response.data.redirect_url);
+    // Mencetak data_pay di sini setelah promise selesai
+    return data_pay; // Mengembalikan data_pay jika perlu
+  } catch (error) {
+    console.log(error);
+    throw error; // Melempar kesalahan jika perlu
+  }
 }
 
 module.exports = {
@@ -202,25 +234,19 @@ module.exports = {
       duration,
       startDateBooking,
       endDateBooking,
-      total,
-      bankName,
-      nameAccountBank,
+      equipments,
       members,
     } = req.body;
 
-    if (!req.file) {
-      return res.status(401).json({ message: "Image Not Found" });
-    }
     if (
-      idItem === undefined ||
-      duration === undefined ||
-      startDateBooking === undefined ||
-      endDateBooking === undefined ||
-      bankName === undefined ||
-      nameAccountBank === undefined ||
-      members === undefined
+      !idItem ||
+      !duration ||
+      !startDateBooking ||
+      !endDateBooking ||
+      !equipments ||
+      !members
     ) {
-      return res.status(402).json({ message: "Lengkapi semua field" });
+      return res.status(400).json({ message: "Lengkapi semua field" });
     }
     const item = await Item.findOne({ _id: idItem });
     if (!item) {
@@ -259,13 +285,39 @@ module.exports = {
       // console.log(memberData)
       memberData.push(newMember._id);
     }
+    const price = memberData.length * item.price * duration;
+    const data_url = await fetchDataPayment(price, invoice);
+    const equipmentData = [];
+    for (const equipment of equipments) {
+      const {
+        jumlahTenda,
+        jumlahKompor,
+        jumlahMatras,
+        jumlahP3k,
+        jumlahSleepingBag,
+        jumlahCarrier,
+        jumlahHeadlamp,
+      } = equipment;
+      const newEquipment = await Equipment.create({
+        jumlahTenda,
+        jumlahKompor,
+        jumlahMatras,
+        jumlahP3k,
+        jumlahSleepingBag,
+        jumlahCarrier,
+        jumlahHeadlamp,
+      });
+
+      equipmentData.push(newEquipment._id);
+    }
 
     const newBooking = {
       invoice: invoice,
       bookingStartDate: startDateBooking,
       bookingEndDate: endDateBooking,
       memberId: memberData,
-      total: total,
+      EquipmentId: equipmentData,
+      total: price,
       track: trackName,
       itemId: {
         _id: item._id,
@@ -274,9 +326,9 @@ module.exports = {
         duration: duration,
       },
       payments: {
-        proofPayment: `images/${req.file.filename}`,
-        bankFrom: bankName,
-        accountHolder: nameAccountBank,
+        payment_status: "waiting",
+        midtrans_url: data_url,
+        midtrans_booking_code: "",
       },
     };
 

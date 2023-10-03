@@ -51,30 +51,33 @@ const bookingSchema = new mongoose.Schema({
       ref: "Member",
     },
   ],
+  EquipmentId: {
+    type: ObjectId,
+    ref: "Equipment",
+  },
   bankId: {
     type: ObjectId,
     ref: "Bank",
   },
+  boarding: {
+    type: String,
+    default: "Registrasi",
+  },
   payments: {
-    proofPayment: {
+    payment_status: {
       type: String,
-      required: true,
+      default: null,
     },
-    bankFrom: {
+    midtrans_url: {
       type: String,
-      required: true,
     },
-    accountHolder: {
+    midtrans_booking_code: {
       type: String,
-      required: true,
+      default: null,
     },
     status: {
       type: String,
       default: "Proses",
-    },
-    boarding: {
-      type: String,
-      default: "Registrasi",
     },
   },
 });
