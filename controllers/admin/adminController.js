@@ -126,7 +126,7 @@ module.exports = {
   addCategory: async (req, res) => {
     try {
       const { name } = req.body;
-      console.log(name);
+      // console.log(name);
       // console.log(name);
       await Category.create({ name });
       req.flash("alertMessage", "Success Add Category");
@@ -389,7 +389,7 @@ module.exports = {
         message: alertMessage,
         status: alertStatus,
       };
-      console.log(item);
+      // console.log(item);
       res.render("admin/item/view_item", {
         title: "Cakrawala | Edit Item",
         alert,

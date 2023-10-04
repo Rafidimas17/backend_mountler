@@ -1,6 +1,47 @@
 const midtransClient = require("midtrans-client");
 const Booking = require("../../models/Booking");
 
+async function handleTransactionNotification(notificationJson) {
+  let apiClient = new midtransClient.Snap({
+    isProduction: false,
+    serverKey: "SB-Mid-server-HOAowzEVHWBWylIMPkmfROAQ",
+    clientKey: "SB-Mid-client-AidiYHDGM1ntrvqo",
+  });
+  return apiClient.transaction
+    .notification(notificationJson)
+    .then((statusResponse) => {
+      let orderId = statusResponse.order_id;
+      let transactionStatus = statusResponse.transaction_status;
+      let fraudStatus = statusResponse.fraud_status;
+
+      if (transactionStatus == "capture") {
+        // capture only applies to card transaction, which you need to check for the fraudStatus
+        if (fraudStatus == "challenge") {
+          return "challenge";
+          // TODO set transaction status on your databaase to 'challenge'
+        } else if (fraudStatus == "accept") {
+          return "paid";
+        }
+      } else if (transactionStatus == "settlement") {
+        // TODO set transaction status on your databaase to 'success'
+      } else if (transactionStatus == "deny") {
+        return "deny";
+        // TODO you can ignore 'deny', because most of the time it allows payment retries
+        // and later can become success
+      } else if (
+        transactionStatus == "cancel" ||
+        transactionStatus == "expire"
+      ) {
+        return "failure";
+        // TODO set transaction status on your databaase to 'failure'
+      } else if (transactionStatus == "pending") {
+        return "pending";
+        // TODO set transaction status on your databaase to 'pending' / waiting payment
+      } else {
+        return "capture";
+      }
+    });
+}
 module.exports = {
   getNotification: async (req, res) => {
     const {
@@ -21,11 +62,6 @@ module.exports = {
       const orderId = await Booking.findOne({ invoice: order_id });
 
       if (orderId) {
-        let apiClient = new midtransClient.Snap({
-          isProduction: false,
-          serverKey: "SB-Mid-server-HOAowzEVHWBWylIMPkmfROAQ",
-          clientKey: "SB-Mid-client-AidiYHDGM1ntrvqo",
-        });
         let notificationJson = {
           currency,
           fraud_status,
@@ -40,39 +76,11 @@ module.exports = {
           va_numbers: [{ bank, va_number }],
         };
 
-        async function handleTransactionNotification(notificationJson) {
-          return apiClient.transaction
-            .notification(notificationJson)
-            .then((statusResponse) => {
-              let orderId = statusResponse.order_id;
-              let transactionStatus = statusResponse.transaction_status;
-              let fraudStatus = statusResponse.fraud_status;
-
-              if (transactionStatus == "capture") {
-                if (fraudStatus == "challenge") {
-                  return "challenge";
-                } else if (
-                  fraudStatus == "accept" &&
-                  transactionStatus == "capture"
-                ) {
-                  return "paid", orderId;
-                }
-              } else if (transactionStatus == "settlement") {
-              } else if (transactionStatus == "deny") {
-                return "deny";
-              } else if (
-                transactionStatus == "cancel" ||
-                transactionStatus == "expire"
-              ) {
-                return "failure";
-              } else if (transactionStatus == "pending") {
-                return "pending";
-              }
-
-              // Mengembalikan objek yang berisi informasi status transaksi
-            });
-        }
-        console.log(await handleTransactionNotification(notificationJson));
+        const paymentStatus = await handleTransactionNotification(
+          notificationJson
+        );
+        orderId.payments.payment_status = paymentStatus;
+        await orderId.save();
       }
     } catch (error) {}
   },
