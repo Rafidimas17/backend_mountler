@@ -12,7 +12,7 @@
     <div id="content">
 
       <%- include('../../../partials/navbar.ejs') %>
-      <p class="halo" id="boarding-status" hidden value="<% booking.payments.boarding %>"></p>
+      <p class="halo" id="boarding-status" hidden value="<% booking.boarding %>"></p>
       <!-- Begin Page Content -->
       <div class="container-fluid">
         <%- include('../../../partials/alert.ejs') %>
@@ -24,29 +24,29 @@
           <div id="progress-bar-container">
             <div class="stepper">
               <div
-                class="step <%= booking.payments.boarding === "Registrasi" ? 'active' : '' %> <%= booking.payments.boarding === "Mendaki" || "Selesai"  ? 'completed' : '' %>">
+                class="step <%= booking.boarding === "Registrasi" ? 'active' : '' %> <%= booking.boarding === "Mendaki" || "Selesai"  ? 'completed' : '' %>">
                 <div class="step-label"></div>
                 <div class="step-description">Mulai Mendaki</div>
               </div>
               <div
-                class="step <%= booking.payments.boarding === "Mendaki" ? 'active' : '' %> <%= booking.payments.boarding === "Selesai" ? 'completed' : '' %>">
+                class="step <%= booking.boarding === "Mendaki" ? 'active' : '' %> <%= booking.boarding === "Selesai" ? 'completed' : '' %>">
                 <div class="step-label"></div>
                 <div class="step-description">Mendaki</div>
               </div>
               <div
-                class="step <%= booking.payments.boarding === "Selesai" ? 'completed' : '' %> <%= booking.payments.boarding === "Selesai" ? 'completed' : '' %>">
+                class="step <%= booking.boarding === "Selesai" ? 'completed' : '' %> <%= booking.boarding === "Selesai" ? 'completed' : '' %>">
                 <div class="step-label"></div>
                 <div class="step-description">Selesai Mendaki</div>
               </div>
 
             </div>
             <!-- progress-bar-container -->
-            <div id="progress-content-section d-block" class="halo" value="<% booking.payments.boarding %>">
+            <div id="progress-content-section d-block" class="halo" value="<% booking.boarding %>">
 
               <div
-                class="section-content step1 <% if (booking.payments.boarding === "Registrasi" || "Mendaki") { %>active<% } %> d-block">
+                class="section-content step1 <% if (booking.boarding === "Registrasi" || "Mendaki") { %>active<% } %> d-block">
                 <div id="reader"
-                  class="<% if (booking.payments.boarding === "Registrasi" || "Mendaki") { %>d-block<% } else { %>d-none<% } %>">
+                  class="<% if (booking.boarding === "Registrasi" || "Mendaki") { %>d-block<% } else { %>d-none<% } %>">
                 </div>
                 <div id="result"></div>
               </div>
@@ -103,7 +103,7 @@
   const readerElement = document.getElementById('reader');
 
   // Set nilai atribut "value" dengan hasil ekspresi EJS
-  haloElement.setAttribute('value', '<%= booking.payments.boarding %>');
+  haloElement.setAttribute('value', '<%= booking.boarding %>');
 
   // Ambil nilai dari atribut "value" yang baru diatur
   const getHalo = haloElement.getAttribute('value');
@@ -145,7 +145,7 @@
     if (result !== null) {
       // Buat objek yang akan dikirim sebagai data POST
       const postData = {
-        idScan: result
+        id: result
       };
 
       // Konversi objek menjadi JSON
@@ -161,23 +161,25 @@
         })
         .then(response => {
           if (response.ok) {
-            // Jika permintaan sukses, tampilkan pesan sukses ke pengguna
+
             window.location.href = '/admin/status';
 
             // Bersihkan pemindai jika diperlukan
             scanner.clear();
           } else {
-            // Jika permintaan gagal, tampilkan pesan kesalahan ke pengguna
-            document.getElementById('result').innerHTML = `
-            <h2>Error: Failed to send data to server</h2>
-          `;
+            response.text().then(errorMsg => {
+              console.error("Server Error:", errorMsg);
+              document.getElementById('result').innerHTML = `
+                <h2>Error: ${errorMsg}</h2>
+              `;
+            });
           }
         })
         .catch(error => {
           console.error("Error sending POST request:", error);
           // Handle error jika terjadi kesalahan saat mengirim permintaan
           document.getElementById('result').innerHTML = `
-          <h2>Error: Failed to send data to server</h2>
+          <h2>Error: Failed to send data to server because route</h2>
         `;
         });
     } else {

@@ -6,6 +6,7 @@ const Equipment = require("../../models/Equipment");
 const Users = require("../../models/Users");
 const Member = require("../../models/Member");
 const axios = require("axios");
+const Profile = require("../../models/Profile");
 const Track = require("../../models/Track");
 
 async function getCurrentDateTime() {
@@ -22,16 +23,19 @@ async function getCurrentDateTime() {
 }
 async function generateInvoice() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const length = 10; // Panjang invoice yang diinginkan
+  const prefix = "MT";
+  const remainingLength = 6; // Panjang karakter acak yang diinginkan
 
-  let invoice = "";
-  for (let i = 0; i < length; i++) {
+  let invoice = prefix;
+
+  for (let i = 0; i < remainingLength; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     invoice += characters.charAt(randomIndex);
   }
 
   return invoice;
 }
+
 async function convertCelcius(value) {
   const celcius = ((value - 32) * 5) / 9;
   return celcius;
@@ -230,6 +234,7 @@ module.exports = {
 
   bookingPage: async (req, res) => {
     const {
+      idProfile,
       idItem,
       duration,
       startDateBooking,
@@ -239,6 +244,7 @@ module.exports = {
     } = req.body;
 
     if (
+      !idProfile ||
       !idItem ||
       !duration ||
       !startDateBooking ||
@@ -257,6 +263,10 @@ module.exports = {
     item.sumBooking += 1;
 
     await item.save();
+
+    const findProfile = await Profile.findOne({ _id: idProfile });
+    const profileId = findProfile._id;
+    const profileUsername = findProfile.username;
     const idTrack = item.trackId[0]._id;
     const findTrack = await Track.findOne({ _id: idTrack });
     const trackName = findTrack.name;
@@ -324,6 +334,10 @@ module.exports = {
         title: item.title,
         price: item.price,
         duration: duration,
+      },
+      profileId: {
+        _id: profileId,
+        username: profileUsername,
       },
       payments: {
         payment_status: "waiting",

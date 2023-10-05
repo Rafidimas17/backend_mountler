@@ -674,7 +674,7 @@ module.exports = {
       const booking = await Booking.find({ _id: user.bookingId })
         .populate("memberId")
         .populate("bankId");
-
+      booking.sort((a, b) => b.createdAt - a.createdAt);
       res.render("admin/booking/view_booking", {
         title: "Cakrawala | Booking",
         user,
@@ -943,6 +943,7 @@ module.exports = {
         message: alertMessage,
         status: alertStatus,
       };
+      booking.sort((a, b) => b.createdAt - a.createdAt);
       res.render("admin/status/view_status", {
         title: "Cakrawala | Status",
         alert,
@@ -969,6 +970,7 @@ module.exports = {
       // const feature = await Feature.find({ itemId: itemId }); const  = await
       // Activity.find({ itemId: itemId });
       // console.log(booking);
+
       res.render("admin/status/detail-status/view_detail_status", {
         title: "Cakrawala | Detail Status",
         alert,
@@ -991,7 +993,8 @@ module.exports = {
     // Item.find({_id:user.itemId[i]}) }
   },
   scanQrCode: async (req, res) => {
-    const { idScan } = req.body;
+    const { id } = req.body;
+    const idScan = id.substring(0, 24);
 
     try {
       // Cari data booking berdasarkan _id
@@ -1010,7 +1013,7 @@ module.exports = {
       // Periksa apakah idScan sama dengan _id dalam payload
       if (idScan === booking._id.toString()) {
         // Jika sama, ubah status menjadi "Mendaki"
-        booking.payments.boarding = "Mendaki";
+        booking.boarding = "Mendaki";
 
         // Simpan perubahan
         await booking.save();
@@ -1029,7 +1032,7 @@ module.exports = {
       // Tangani kesalahan lain jika terjadi
       res
         .status(500)
-        .json({ error: "Terjadi kesalahan dalam pengolahan data" });
+        .json({ error: "Terjadi kesalahan dalam pengolahan data", idScan });
     }
   },
 };

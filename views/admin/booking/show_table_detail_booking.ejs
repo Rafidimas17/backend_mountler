@@ -5,29 +5,6 @@
   </div>
   <div class="card-body">
     <div class="row">
-      <div class="col-md-4">
-        <% const imageUrl = `${process.env.HOST_URL}/${booking.payments.proofPayment}` %>
-        <img src="<%= imageUrl %>" alt="image"
-          style="width: 100%; display: block;">
-
-        <div class="row ml-1">
-          <% if(booking.payments.status == 'Proses') {%>
-
-          <form action="/admin/booking/<%= booking.id %>/confirmation?_method=PUT" method="POST">
-            <button type="submit" class="btn btn-success btn-sm mt-3">
-              <i class="fas fa-check"></i>
-              Confirmation
-            </button>
-          </form>
-          <form action="/admin/booking/<%= booking.id %>/reject?_method=PUT" method="POST" class="ml-2">
-            <button type="submit" class="btn btn-danger btn-sm mt-3">
-              <i class="fas fa-times"></i>
-              Reject
-            </button>
-          </form>
-          <% } %>
-        </div>
-      </div>
       <div class="col-md-8">
         <div class="table-responsive">
           <table class="table table-bordered" id="dataTableActivity" width="100%" cellspacing="0">
@@ -35,15 +12,17 @@
               <tr>
                 <th>Invoice</th>
                 <th>Total</th>
-                <th>Bank From</th>
-                <th>Title</th>
+                <th>Status Pembayaran</th>
+                <th>Nama Gunung</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><%= booking.invoice %></td>                
+                <td><%= booking.invoice %></td>
                 <td>Rp. <%= booking.total %> </td>
-                <td><%= booking.payments.bankFrom %> </td>
+                <% if(booking.payments.payment_status=="waiting"){ %>
+                <td class="text-center">Menunggu </td>
+                <% } %>
                 <td><%= booking.itemId.title %> </td>
               </tr>
             </tbody>
@@ -60,24 +39,24 @@
             </thead>
             <tbody>
               <% booking.memberId.forEach(function(member, index) { %>
-                <tr>
-                  <td><%= index + 1 %></td>
-                  <td><%= member.nameMember %></td>
-                  <td><%= member.addressMember %></td>
-                  <td><%= member.noIdMember %></td>
-                  <td><%= member.phoneMember %></td>
-                </tr>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= member.nameMember %></td>
+                <td><%= member.addressMember %></td>
+                <td><%= member.noIdMember %></td>
+                <td><%= member.phoneMember %></td>
+              </tr>
               <% }); %>
             </tbody>
           </table>
-        
-          
-          
-          
-          
-          
-          
-          
+
+
+
+
+
+
+
+
         </div>
       </div>
     </div>

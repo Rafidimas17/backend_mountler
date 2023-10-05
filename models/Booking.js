@@ -1,5 +1,9 @@
 const mongoose = require("mongoose");
 const { ObjectId } = mongoose.Schema;
+const moment = require("moment-timezone");
+
+// Atur zona waktu ke GMT+7 (Waktu Indonesia Barat)
+moment.tz.setDefault("Asia/Jakarta");
 
 const bookingSchema = new mongoose.Schema({
   bookingStartDate: {
@@ -51,6 +55,17 @@ const bookingSchema = new mongoose.Schema({
       ref: "Member",
     },
   ],
+  profileId: {
+    _id: {
+      type: ObjectId,
+      ref: "Profile",
+      required: true,
+    },
+    username: {
+      type: String,
+      required: true,
+    },
+  },
   EquipmentId: {
     type: ObjectId,
     ref: "Equipment",
@@ -78,6 +93,23 @@ const bookingSchema = new mongoose.Schema({
     status: {
       type: String,
       default: "Proses",
+    },
+  },
+  createdAt: {
+    type: Date,
+    default: function () {
+      const originalTimestamp = moment.tz("Asia/Jakarta"); // Your original timestamp
+
+      const originalDate = new Date(originalTimestamp);
+
+      originalDate.setHours(originalDate.getHours() + 7);
+
+      if (originalDate.getHours() >= 24) {
+        originalDate.setHours(originalDate.getHours() - 24);
+      }
+
+      const modifiedTimestamp = originalDate.toISOString();
+      return modifiedTimestamp;
     },
   },
 });
