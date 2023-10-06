@@ -41,11 +41,46 @@ async function convertCelcius(value) {
   return celcius;
 }
 
-async function fetchDataPayment(total, invoice) {
+async function fetchDataPayment(
+  total,
+  invoice,
+  memberName,
+  memberEmail,
+  memberPhone,
+  memberAddress
+) {
   const data_payment = JSON.stringify({
     transaction_details: {
       order_id: invoice,
       gross_amount: total,
+    },
+    item_details: [
+      {
+        id: invoice,
+        price: total,
+        quantity: 1,
+        name: "Gunung Semeru",
+        brand: "Mountler",
+        category: "Pendakian",
+        merchant_name: "Mountler",
+        url: "https://mountler.com",
+      },
+    ],
+    customer_details: {
+      first_name: memberName,
+      last_name: "",
+      email: memberEmail,
+      phone: memberPhone,
+      billing_address: {
+        first_name: memberName,
+        last_name: "",
+        email: memberEmail,
+        phone: memberPhone,
+        address: memberAddress,
+        city: "",
+        postal_code: "",
+        country_code: "IDN",
+      },
     },
   });
 
@@ -234,7 +269,7 @@ module.exports = {
 
   bookingPage: async (req, res) => {
     const {
-      idProfile,
+      token,
       idItem,
       duration,
       startDateBooking,
@@ -244,7 +279,7 @@ module.exports = {
     } = req.body;
 
     if (
-      !idProfile ||
+      !token ||
       !idItem ||
       !duration ||
       !startDateBooking ||
@@ -252,6 +287,15 @@ module.exports = {
       !equipments ||
       !members
     ) {
+      console.log(
+        token,
+        idItem,
+        duration,
+        startDateBooking,
+        endDateBooking,
+        equipments,
+        members
+      );
       return res.status(400).json({ message: "Lengkapi semua field" });
     }
     const item = await Item.findOne({ _id: idItem });
@@ -261,11 +305,19 @@ module.exports = {
     // const tracks=item.trackId[0].name;
     // console.log(item)
     item.sumBooking += 1;
+    const parts = token.split(".");
+    const payloadBase64 = parts[1];
+    const payloadJSON = JSON.parse(
+      Buffer.from(payloadBase64, "base64").toString("utf8")
+    );
+
+    const idProfile = payloadJSON.id;
+    // const idProfile = payloadJSON.username;
 
     await item.save();
-
     const findProfile = await Profile.findOne({ _id: idProfile });
     const profileId = findProfile._id;
+
     const profileUsername = findProfile.username;
     const idTrack = item.trackId[0]._id;
     const findTrack = await Track.findOne({ _id: idTrack });
@@ -296,7 +348,7 @@ module.exports = {
       memberData.push(newMember._id);
     }
     const price = memberData.length * item.price * duration;
-    const data_url = await fetchDataPayment(price, invoice);
+
     const equipmentData = [];
     for (const equipment of equipments) {
       const {
@@ -320,6 +372,21 @@ module.exports = {
 
       equipmentData.push(newEquipment._id);
     }
+    const idMember = memberData[0];
+    const findMember = await Member.findOne({ _id: idMember });
+    const memberName = findMember.nameMember;
+    const memberEmail = findMember.emailMember;
+    const memberPhone = findMember.phoneMember;
+    const memberAddress = findMember.addressMember;
+
+    const data_url = await fetchDataPayment(
+      price,
+      invoice,
+      memberName,
+      memberEmail,
+      memberPhone,
+      memberAddress
+    );
 
     const newBooking = {
       invoice: invoice,
@@ -359,5 +426,23 @@ module.exports = {
       message: "Success Booking",
       booking,
     });
+  },
+  viewDashboard: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const findDataMember = await Booking.find({ "profileId._id": id });
+
+      if (findDataMember && findDataMember.length > 0) {
+        console.log(findDataMember);
+        // Di sini, Anda dapat menampilkan data atau melanjutkan dengan logika bisnis Anda.
+        res.status(200).json(findDataMember); // Contoh: Mengirim data sebagai respons JSON
+      } else {
+        res.status(404).json({ message: "Data member tidak ditemukan" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Terjadi kesalahan server" });
+    }
   },
 };

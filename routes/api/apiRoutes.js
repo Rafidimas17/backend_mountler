@@ -13,6 +13,7 @@ router.post(
   apiController.bookingPage
 );
 
+router.get("/dashboard/:id", apiController.viewDashboard);
 router.get("/payment-success", testController.getNotification);
 router.post("/payment-success", testController.getNotification);
 module.exports = router;

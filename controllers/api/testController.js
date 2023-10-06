@@ -10,7 +10,6 @@ async function handleTransactionNotification(notificationJson) {
   return apiClient.transaction
     .notification(notificationJson)
     .then((statusResponse) => {
-      let orderId = statusResponse.order_id;
       let transactionStatus = statusResponse.transaction_status;
       let fraudStatus = statusResponse.fraud_status;
 
@@ -79,8 +78,18 @@ module.exports = {
         const paymentStatus = await handleTransactionNotification(
           notificationJson
         );
-        orderId.payments.payment_status = paymentStatus;
-        await orderId.save();
+        if (paymentStatus === "paid") {
+          orderId.payments.payment_status = "paid";
+          orderId.payments.midtrans_url = null;
+          await orderId.save();
+        } else if (paymentStatus === "pending") {
+          orderId.payments.payment_status = "pending";
+          await orderId.save();
+        } else if (paymentStatus === "failure") {
+          orderId.payments.payment_status = "failure";
+          orderId.payments.midtrans_url = null;
+          await orderId.save();
+        }
       }
     } catch (error) {}
   },
