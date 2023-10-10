@@ -445,4 +445,18 @@ module.exports = {
       res.status(500).json({ message: "Terjadi kesalahan server" });
     }
   },
+  ticketShow: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const findIdBooking = await Booking.findOne({ _id: id });
+      const member = findIdBooking.memberId;
+
+      for (let i = 0; i < findIdBooking.memberId.length; i++) {
+        console.log(member[i]);
+      }
+      res.status(200).json({
+        data: member,
+      });
+    } catch (error) {}
+  },
 };

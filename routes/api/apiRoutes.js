@@ -12,7 +12,7 @@ router.post(
   uploadSingle,
   apiController.bookingPage
 );
-
+router.get("/ticket-show/:id", apiController.ticketShow);
 router.get("/dashboard/:id", apiController.viewDashboard);
 router.get("/payment-success", testController.getNotification);
 router.post("/payment-success", testController.getNotification);
