@@ -6,90 +6,79 @@ const token = "iO3quoYg265hlzq30E8RelQc0LOKle4R0yk6CMbgeHgGNcm_mR";
 describe("Item API Testing", () => {
   it("GET API Landing Page", (done) => {
     const expectedHero = {
-        travelers: 16,
-        treasures: 1,
-        cities: 1
-      };
-      const expectedMostPicked = [
-        {
-          country: 'Indonesia',
-          unit: 'day',
-          imageId: [
-            {
-              _id: '649c182efd615542d063d8ae',
-              imageUrl: 'images/1687951404101.jpg'
-            },
-            {
-              _id: '649c182efd615542d063d8af',
-              imageUrl: 'images/1687951404136.jpg'
-            },
-            {
-              _id: '649c182ffd615542d063d8b0',
-              imageUrl: 'images/1687951404156.jpg'
-            },
-            {
-              _id: '649c1830fd615542d063d8b1',
-              imageUrl: 'images/1687951404171.jpg'
-            },
-            {
-              _id: '649c1830fd615542d063d8b2',
-              imageUrl: 'images/1687951404193.jpg'
-            },
-            {
-              _id: '649c1831fd615542d063d8b3',
-              imageUrl: 'images/1687951404219.jpg'
-            }
-          ],
-          trackId: [
-            {
-              _id: '649c1865fd615542d063d8b5',
-              name: 'Ranupane',
-              province: 'Jawa Timur',
-              city: 'Lumajang'
-            }
-          ],
-          _id: '649c182cfd615542d063d8ad',
-          title: 'Gunung Semeru',
-          price: 13000
-        }
-      ];
-      const expectedCategory=[
-        {
-            itemId: [
-                {
-                    country: "Indonesia",
-                    isPopular: true,
-                    imageId: [
-                        {
-                            _id: "649c182efd615542d063d8ae",
-                            imageUrl: "images/1687951404101.jpg"
-                        }
-                    ],
-                    trackId: [
-                        {
-                            _id: "649c1865fd615542d063d8b5",
-                            name: "Ranupane",
-                            province: "Jawa Timur",
-                            city: "Lumajang"
-                        }
-                    ],
-                    _id: "649c182cfd615542d063d8ad",
-                    title: "Gunung Semeru"
-                }
-            ],
-            _id: "649c17b3fd615542d063d8ab",
-            name: "Seven Summit Indonesia"
-        }
+      travelers: 36,
+      treasures: 1,
+      cities: 1,
+    };
+    const expectedMostPicked = [
+      {
+        country: "Indonesia",
+        unit: "day",
+        imageId: [
+          {
+            _id: "651e1dffbf0fc942e41ba0c3",
+            imageUrl: "images/1696472573997.jpg",
+          },
+          {
+            _id: "651e1e00bf0fc942e41ba0c6",
+            imageUrl: "images/1696472574023.jpg",
+          },
+          {
+            _id: "651e1e00bf0fc942e41ba0c9",
+            imageUrl: "images/1696472574034.jpg",
+          },
+        ],
+        trackId: [
+          {
+            _id: "651e1e7bbf0fc942e41ba0f4",
+            name: "Ranupane",
+            province: "Jawa Timur",
+            city: "Lumajang",
+          },
+        ],
+        _id: "651e1dfebf0fc942e41ba0bd",
+        title: "Gunung Semeru",
+        price: 14000,
+      },
     ];
-    const expectedTestimonial={
-        _id: "asd1293uasdads1",
-        imageUrl: "images/testimonial2.jpg",
-        name: "Happy Family",
-        rate: 4.55,
-        content: "What a great trip with my family and I should try again next time soon ...",
-        familyName: "Angga",
-        familyOccupation: "Product Designer"
-    }
+    const expectedCategory = [
+      {
+        itemId: [
+          {
+            country: "Indonesia",
+            isPopular: true,
+            imageId: [
+              {
+                _id: "651e1dffbf0fc942e41ba0c3",
+                imageUrl: "images/1696472573997.jpg",
+              },
+            ],
+            trackId: [
+              {
+                _id: "651e1e7bbf0fc942e41ba0f4",
+                name: "Ranupane",
+                province: "Jawa Timur",
+                city: "Lumajang",
+              },
+            ],
+            _id: "651e1dfebf0fc942e41ba0bd",
+            title: "Gunung Semeru",
+          },
+        ],
+        _id: "651e1d93bf0fc942e41ba0aa",
+        name: "Seven Summit",
+      },
+    ];
+    const expectedTestimonial = {
+      _id: "asd1293uasdads1",
+      imageUrl: "images/testimonial2.jpg",
+      name: "Happy Family",
+      rate: 4.55,
+      content:
+        "What a great trip with my family and I should try again next time soon ...",
+      familyName: "Angga",
+      familyOccupation: "Product Designer",
+    };
     request(app)
       .get("/api-v1/landing-page")
       .set("Authorization", `Bearer ${token}`)
@@ -110,7 +99,7 @@ describe("Item API Testing", () => {
   });
   it("GET API Detail Page", (done) => {
     request(app)
-      .get("/api-v1/detail-page/649c182cfd615542d063d8ad")
+      .get("/api-v1/detail-page/651e1dfebf0fc942e41ba0bd")
       .set("Authorization", `Bearer ${token}`)
       .expect(200)
       .end((err, res) => {
@@ -124,7 +113,10 @@ describe("Item API Testing", () => {
         } else if (res.status === 404) {
           assert.equal(res.body.message, "Failed to convert temperature");
         } else if (res.status === 401) {
-          assert.equal(res.body.message, "Failed to fetch current weather data");
+          assert.equal(
+            res.body.message,
+            "Failed to fetch current weather data"
+          );
         } else if (res.status === 402) {
           assert.equal(res.body.message, "Item Saat Ini Tidak Tersedia");
         } else if (res.status === 500) {

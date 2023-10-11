@@ -12,7 +12,7 @@
     <div id="content">
 
       <%- include('../../../partials/navbar.ejs') %>
-
+      <p class="halo" id="boarding-status" hidden value="<% booking.boarding %>"></p>
       <!-- Begin Page Content -->
       <div class="container-fluid">
         <%- include('../../../partials/alert.ejs') %>
@@ -21,55 +21,43 @@
         <h1 class="h3 mb-4 text-gray-800">Status</h1>
         <!-- End Heading -->
         <div class="progress-wrapper">
-            <div id="progress-bar-container">
-              <ul>
-                <li class="step step01 active">
-                  <div class="step-inner">Registrasi Diterima</div>
-                </li>
-                <li class="step step02">
-                  <div class="step-inner">Mulai Pendakian</div>
-                </li>
-                <li class="step step03">
-                  <div class="step-inner">Pendakian Selesai</div>
-                </li>
-              </ul>
-              <div id="line">
-                <div id="line-progress"></div>
+          <div id="progress-bar-container">
+            <div class="stepper">
+              <div
+                class="step <%= booking.boarding === "Registrasi" ? 'active' : '' %> <%= booking.boarding === "Mendaki" || "Selesai"  ? 'completed' : '' %>">
+                <div class="step-label"></div>
+                <div class="step-description">Mulai Mendaki</div>
               </div>
-              <!-- progress-bar-container -->
-              <div id="progress-content-section">
-                <div class="section-content step1 active">
-                  <h2>Step 1</h2>
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  </p>
+              <div
+                class="step <%= booking.boarding === "Mendaki" ? 'active' : '' %> <%= booking.boarding === "Selesai" ? 'completed' : '' %>">
+                <div class="step-label"></div>
+                <div class="step-description">Mendaki</div>
+              </div>
+              <div
+                class="step <%= booking.boarding === "Selesai" ? 'completed' : '' %> <%= booking.boarding === "Selesai" ? 'completed' : '' %>">
+                <div class="step-label"></div>
+                <div class="step-description">Selesai Mendaki</div>
+              </div>
+
+            </div>
+            <!-- progress-bar-container -->
+            <div id="progress-content-section d-block" class="halo" value="<% booking.boarding %>">
+
+              <div
+                class="section-content step1 <% if (booking.boarding === "Registrasi" || "Mendaki") { %>active<% } %> d-block">
+                <div id="reader"
+                  class="<% if (booking.boarding === "Registrasi" || "Mendaki") { %>d-block<% } else { %>d-none<% } %>">
                 </div>
-                <div class="section-content step2">
-                  <h2>Step 2</h2>
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  </p>
-                </div>
-                <div class="section-content step3">
-                  <h2>Step 3</h2>
-                  <p>
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat,
-                    impedit! Lorem ipsum dolor sit amet consectetur, adipisicing elit. Necessitatibus, soluta impedit. Eligendi aliquam ratione porro minus temporibus facilis iure numquam.
-                  </p>
-                </div>
+                <div id="result"></div>
               </div>
             </div>
-            <!-- progress-wrapper -->
+
+
           </div>
- 
+          <!-- progress-wrapper -->
+        </div>
+
+
 
       </div>
       <!-- /.container-fluid -->
@@ -110,6 +98,98 @@
   </div>
 </div>
 
-  
+<script>
+  const haloElement = document.querySelector('.halo');
+  const readerElement = document.getElementById('reader');
 
+  // Set nilai atribut "value" dengan hasil ekspresi EJS
+  haloElement.setAttribute('value', '<%= booking.boarding %>');
+
+  // Ambil nilai dari atribut "value" yang baru diatur
+  const getHalo = haloElement.getAttribute('value');
+
+  const scanner = new Html5QrcodeScanner('reader', {
+    qrbox: {
+      width: 250,
+      height: 250,
+    },
+    fps: 20,
+  });
+
+  // Fungsi untuk mengaktifkan atau menonaktifkan pemindai QR code
+  function toggleQRCodeScanning(active) {
+    if (active) {
+      // Aktifkan pemindai QR code
+      readerElement.style.display = 'block';
+      scanner.render(success);
+    } else {
+      // Nonaktifkan pemindai QR code
+      readerElement.style.display = 'none';
+      scanner.clear();
+    }
+  }
+
+  // Logika untuk menentukan kapan pemindai QR code harus aktif
+  if (getHalo === "Registrasi") {
+    // Aktifkan pemindai QR code saat posisi Registrasi
+    toggleQRCodeScanning(true);
+  } else if (getHalo === "Mendaki") {
+    // Nonaktifkan pemindai QR code untuk posisi lain
+    toggleQRCodeScanning(true);
+  } else {
+    toggleQRCodeScanning(false);
+
+  }
+
+  function success(result) {
+    if (result !== null) {
+      // Buat objek yang akan dikirim sebagai data POST
+      const postData = {
+        id: result
+      };
+
+      // Konversi objek menjadi JSON
+      const postDataJSON = JSON.stringify(postData);
+
+      // Buat permintaan HTTP POST ke server
+      fetch('/admin/status/scan-qr', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: postDataJSON
+        })
+        .then(response => {
+          if (response.ok) {
+
+            window.location.href = '/admin/status';
+
+            // Bersihkan pemindai jika diperlukan
+            scanner.clear();
+          } else {
+            response.text().then(errorMsg => {
+              console.error("Server Error:", errorMsg);
+              document.getElementById('result').innerHTML = `
+                <h2>Error: ${errorMsg}</h2>
+              `;
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Error sending POST request:", error);
+          // Handle error jika terjadi kesalahan saat mengirim permintaan
+          document.getElementById('result').innerHTML = `
+          <h2>Error: Failed to send data to server because route</h2>
+        `;
+        });
+    } else {
+      // Handle kasus ketika hasilnya null (misalnya, tampilkan pesan kesalahan)
+      document.getElementById('result').innerHTML = `
+        <h2>Error: Result is null</h2>
+      `;
+    }
+  }
+</script>
+
+<script src="./node_modules/html5-qrcode/html5-qrcode.min.js"></script>
 <%- include('../../../partials/script.ejs') %>

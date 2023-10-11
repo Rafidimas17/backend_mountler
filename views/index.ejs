@@ -8,6 +8,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css" rel="stylesheet" /> -->
 
   <title><%= title %></title>
 
@@ -41,11 +44,12 @@
                   <form action="/admin/signin" method="POST">
                     <div class="form-group">
                       <input type="text" class="form-control form-control-user" name="username"
-                        placeholder="Enter Usernamae...">
+                        placeholder="Enter Username...">
                     </div>
                     <div class="form-group">
                       <div class="input-group">
-                        <input type="password" class="form-control form-control-user" id="exampleInputPassword" name="password" placeholder="Password">
+                        <input type="password" class="form-control form-control-user" id="exampleInputPassword"
+                          name="password" placeholder="Password">
                         <div class="input-group-append">
                           <span class="input-group-text" id="password-toggle">
                             <i class="fa fa-eye" aria-hidden="true"></i>
@@ -71,10 +75,10 @@
 
   </div>
   <script>
-    document.getElementById('password-toggle').addEventListener('click', function() {
+    document.getElementById('password-toggle').addEventListener('click', function () {
       var passwordInput = document.getElementById('exampleInputPassword');
       var icon = this.querySelector('i');
-    
+
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
         icon.classList.remove('fa-eye');
@@ -85,12 +89,14 @@
         icon.classList.add('fa-eye');
       }
     });
-    
   </script>
   <!-- Bootstrap core JavaScript-->
   <script src="/sb-admin-2/vendor/jquery/jquery.min.js"></script>
   <script src="/sb-admin-2/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script> -->
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+  </script>
   <!-- Core plugin JavaScript-->
   <script src="/sb-admin-2/vendor/jquery-easing/jquery.easing.min.js"></script>
 

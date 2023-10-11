@@ -8,8 +8,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js" integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js"
+    integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.28/dist/sweetalert2.min.css">
   <title><%= title %></title>
   <!-- <link rel="stylesheet" href="https://cdn.korzh.com/metroui/v4.5.1/css/metro-all.min.css"> -->
   <!-- Custom fonts for this template-->
@@ -20,7 +22,7 @@
 
   <!-- Custom styles for this template-->
   <link href="/sb-admin-2/css/sb-admin-2.min.css" rel="stylesheet">
-  
+
 
   <!-- Custom styles for this page -->
   <link href="/sb-admin-2/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
@@ -29,18 +31,19 @@
       margin: 0;
       padding: 0;
     }
+
     #progress-bar-container li .step-inner {
       position: absolute;
       width: 100%;
       bottom: 0;
       font-size: 14px;
     }
-    
+
     #progress-bar-container li.active,
     #progress-bar-container li:hover {
       color: #444;
     }
-    
+
     #progress-bar-container li::after {
       content: " ";
       display: block;
@@ -54,14 +57,15 @@
       box-shadow: 0 2px 13px -1px rgba(0, 0, 0, 0.2);
       transition: all ease 0.25s;
     }
+
     #progress-bar-container li:hover::after {
       background: #555;
     }
-    
+
     #progress-bar-container li.active::after {
       background: #207893;
     }
-    
+
     #progress-bar-container #line {
       width: 80%;
       margin: auto;
@@ -74,7 +78,7 @@
       border-radius: 50px;
       transition: all ease 0.75s;
     }
-    
+
     #progress-bar-container #line-progress {
       content: " ";
       width: 8%;
@@ -86,6 +90,7 @@
       border-radius: 50px;
       transition: 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.25);
     }
+
     #progress-content-section {
       position: relative;
       top: 100px;
@@ -94,39 +99,42 @@
       background: #f3f3f3;
       border-radius: 4px;
     }
+
     #progress-content-section .section-content {
       padding: 30px 40px;
       text-align: center;
     }
-    
+
     .section-content h2 {
       font-size: 17px;
       text-transform: uppercase;
       color: #333;
       letter-spacing: 1px;
     }
-    
+
     .section-content p {
       font-size: 16px;
       line-height: 1.8rem;
       color: #777;
     }
-    
+
     .section-content {
       display: none;
       animation: FadeinUp 0.7s ease 1 forwards;
       transform: translateY(15px);
       opacity: 0;
     }
-    
+
     .section-content.active {
       display: block;
       opacity: 1;
     }
+
     .progress-wrapper {
       margin: auto;
       max-width: 1080px;
     }
+
     #progress-bar-container {
       position: relative;
       width: 90%;
@@ -134,6 +142,7 @@
       height: 100%;
       margin-top: 65px;
     }
+
     #progress-bar-container ul {
       padding-top: 15px;
       z-index: 999;
@@ -141,6 +150,7 @@
       width: 100%;
       margin-top: -40px;
     }
+
     #progress-bar-container li::before {
       content: " ";
       display: block;
@@ -151,12 +161,13 @@
       border: 2px solid #aaa;
       transition: all ease 0.3s;
     }
-    
+
     #progress-bar-container li.active::before,
     #progress-bar-container li:hover::before {
       border: 2px solid #fff;
       background-color: crimson;
     }
+
     #progress-bar-container li {
       list-style: none;
       float: left;
@@ -172,17 +183,18 @@
       height: 60px;
       position: relative;
     }
+
     @keyframes FadeInUp {
       0% {
-        transform: translateY(15px);  
+        transform: translateY(15px);
         opacity: 0;
       }
+
       100% {
         transform: translateY(0px);
         opacity: 1;
       }
     }
-    
   </style>
 </head>
 

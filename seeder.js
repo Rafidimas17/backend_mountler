@@ -17,6 +17,7 @@ seeder.connect(
       "./models/Category",
       "./models/Bank",
       "./models/Item",
+      "./models/Equipment",
       "./models/Feature",
       "./models/Activity",
       "./models/Member",
@@ -35,6 +36,7 @@ seeder.connect(
         "Bank",
         "Item",
         "Member",
+        "Equipment",
         "Item",
         "Feature",
         "Image",
@@ -60,7 +62,7 @@ var data = [
   },
   // end category
   // start item
-  
+
   // end item
   // start image
   {
@@ -98,6 +100,10 @@ var data = [
     documents: [],
   },
   {
+    model: "Equipment",
+    documents: [],
+  },
+  {
     model: "Track",
     documents: [],
   },
@@ -111,12 +117,9 @@ var data = [
         password: "admin",
         role: "admin",
         organizer: "Admin",
-        noPhone:6285645663350,
-        address:"Jl. Jawa No.2 Ranupane, Lumajang"
-
-
+        noPhone: 6285645663350,
+        address: "Jl. Jawa No.2 Ranupane, Lumajang",
       },
-      
-    ],  
+    ],
   },
 ];

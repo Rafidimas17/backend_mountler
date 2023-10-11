@@ -16,29 +16,30 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody> 
-                    
-                    <% const userAdmin=users.filter(user=>user.role.toLowerCase()==="pengelola") %>                                     
+                <tbody>
+
+                    <% const userAdmin=users.filter(user=>user.role.toLowerCase()==="pengelola") %>
                     <% for(let i=0;i<userAdmin.length;i++){ %>
-                        <tr>
-                            <td><%= i+1  %></td>
-                            <td><%= userAdmin[i].username %></td>
-                            <td><%= userAdmin[i].organizer  %></td>
-                            <td><%= userAdmin[i].noPhone  %></td>
-                            <td><%= userAdmin[i].address  %></td>                           
-                            <td>
-                                <form action="/admin/pengelola/<%= userAdmin[i].id%>?_method=DELETE" method="POST">
-                                    <a href="javascript:void()" type='button'
-                                        class="btn btn-warning btn-circle btn-sm button-update" data-namebank="<%= userAdmin[i].
-                                        nameBank%>" data-name="<%= userAdmin[i].name %>" data-id="<%= userAdmin[i].id %>"
-                                        data-nomorrekening="<%= userAdmin[i].nomorRekening %>">
-                                        <i class="fa fa-edit"></i></a>
-                                    <button type="submit" class="btn btn-danger btn-circle btn-sm"><i
-                                            class="fa fa-trash"></i></button>
-                                </form>
-                            </td>
-                        </tr>
-                        <% } %>
+                    <tr>
+                        <td><%= i+1  %></td>
+                        <td><%= userAdmin[i].username %></td>
+                        <td><%= userAdmin[i].organizer  %></td>
+                        <td><%= userAdmin[i].noPhone  %></td>
+                        <td><%= userAdmin[i].address  %></td>
+                        <td>
+                            <form action="/admin/pengelola/<%= userAdmin[i].id%>?_method=DELETE" method="POST">
+                                <a href="javascript:void()" type='button'
+                                    class="btn btn-warning btn-circle btn-sm button-update" data-namebank="<%= userAdmin[i].
+                                        nameBank%>" data-name="<%= userAdmin[i].name %>"
+                                    data-id="<%= userAdmin[i].id %>"
+                                    data-nomorrekening="<%= userAdmin[i].nomorRekening %>">
+                                    <i class="fa fa-edit"></i></a>
+                                <button type="submit" class="btn btn-danger btn-circle btn-sm"><i
+                                        class="fa fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                    <% } %>
                 </tbody>
 
 

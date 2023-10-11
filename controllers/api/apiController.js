@@ -2,9 +2,11 @@ const Item = require("../../models/Item");
 const Treveler = require("../../models/Member");
 const Category = require("../../models/Category");
 const Booking = require("../../models/Booking");
+const Equipment = require("../../models/Equipment");
 const Users = require("../../models/Users");
 const Member = require("../../models/Member");
 const axios = require("axios");
+const Profile = require("../../models/Profile");
 const Track = require("../../models/Track");
 
 async function getCurrentDateTime() {
@@ -21,19 +23,88 @@ async function getCurrentDateTime() {
 }
 async function generateInvoice() {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  const length = 10; // Panjang invoice yang diinginkan
+  const prefix = "MT";
+  const remainingLength = 6; // Panjang karakter acak yang diinginkan
 
-  let invoice = "";
-  for (let i = 0; i < length; i++) {
+  let invoice = prefix;
+
+  for (let i = 0; i < remainingLength; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     invoice += characters.charAt(randomIndex);
   }
 
   return invoice;
 }
+
 async function convertCelcius(value) {
   const celcius = ((value - 32) * 5) / 9;
   return celcius;
+}
+
+async function fetchDataPayment(
+  total,
+  invoice,
+  memberName,
+  memberEmail,
+  memberPhone,
+  memberAddress
+) {
+  const data_payment = JSON.stringify({
+    transaction_details: {
+      order_id: invoice,
+      gross_amount: total,
+    },
+    item_details: [
+      {
+        id: invoice,
+        price: total,
+        quantity: 1,
+        name: "Gunung Semeru",
+        brand: "Mountler",
+        category: "Pendakian",
+        merchant_name: "Mountler",
+        url: "https://mountler.com",
+      },
+    ],
+    customer_details: {
+      first_name: memberName,
+      last_name: "",
+      email: memberEmail,
+      phone: memberPhone,
+      billing_address: {
+        first_name: memberName,
+        last_name: "",
+        email: memberEmail,
+        phone: memberPhone,
+        address: memberAddress,
+        city: "",
+        postal_code: "",
+        country_code: "IDN",
+      },
+    },
+  });
+
+  let config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: "https://app.sandbox.midtrans.com/snap/v1/transactions",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization:
+        "Basic U0ItTWlkLXNlcnZlci1IT0Fvd3pFVkhXQld5bElNUGttZlJPQVE6",
+    },
+    data: data_payment,
+  };
+
+  try {
+    const response = await axios.request(config);
+    const data_pay = JSON.stringify(response.data.redirect_url);
+    // Mencetak data_pay di sini setelah promise selesai
+    return data_pay; // Mengembalikan data_pay jika perlu
+  } catch (error) {
+    console.log(error);
+    throw error; // Melempar kesalahan jika perlu
+  }
 }
 
 module.exports = {
@@ -95,7 +166,7 @@ module.exports = {
       };
 
       res.status(200).json({
-        message:"Success",
+        message: "Success",
         hero: {
           travelers: treveler.length,
           treasures: treasure.length,
@@ -107,7 +178,7 @@ module.exports = {
       });
     } catch (error) {
       // console.log(error);
-      res.status(404).json({ message:"Empty Item" });
+      res.status(404).json({ message: "Empty Item" });
     }
   },
 
@@ -168,7 +239,7 @@ module.exports = {
                 };
 
                 const responseData = {
-                  message:"Success",
+                  message: "Success",
                   ...data,
                   currentWeather,
                 };
@@ -186,41 +257,46 @@ module.exports = {
         .catch((err) => {
           // console.error(err);
           res.status(402).json({
-            message:"Item Tidak Tersedia"
+            message: "Item Tidak Tersedia",
           });
         });
     } catch (error) {
       res.status(500).json({
-        message:"Item Tidak Tersedia"
+        message: "Item Tidak Tersedia",
       });
     }
   },
 
   bookingPage: async (req, res) => {
     const {
+      token,
       idItem,
       duration,
       startDateBooking,
       endDateBooking,
-      total,
-      bankName,
-      nameAccountBank,
+      equipments,
       members,
     } = req.body;
 
-    // if (!req.file) {
-    //   return res.status(401).json({ message: "Image Not Found" });
-    // }
     if (
-      idItem === undefined ||
-      duration === undefined ||
-      startDateBooking === undefined ||
-      endDateBooking === undefined ||
-      bankName === undefined ||
-      nameAccountBank === undefined ||
-      members === undefined
+      !token ||
+      !idItem ||
+      !duration ||
+      !startDateBooking ||
+      !endDateBooking ||
+      !equipments ||
+      !members
     ) {
-      return res.status(402).json({ message: "Lengkapi semua field" });
+      console.log(
+        token,
+        idItem,
+        duration,
+        startDateBooking,
+        endDateBooking,
+        equipments,
+        members
+      );
+      return res.status(400).json({ message: "Lengkapi semua field" });
     }
     const item = await Item.findOne({ _id: idItem });
     if (!item) {
@@ -229,13 +305,24 @@ module.exports = {
     // const tracks=item.trackId[0].name;
     // console.log(item)
     item.sumBooking += 1;
+    const parts = token.split(".");
+    const payloadBase64 = parts[1];
+    const payloadJSON = JSON.parse(
+      Buffer.from(payloadBase64, "base64").toString("utf8")
+    );
+
+    const idProfile = payloadJSON.id;
+    // const idProfile = payloadJSON.username;
 
     await item.save();
+    const findProfile = await Profile.findOne({ _id: idProfile });
+    const profileId = findProfile._id;
+
+    const profileUsername = findProfile.username;
     const idTrack = item.trackId[0]._id;
     const findTrack = await Track.findOne({ _id: idTrack });
     const trackName = findTrack.name;
     // console.log(trackName)
-   
 
     const invoice = await generateInvoice();
 
@@ -260,13 +347,54 @@ module.exports = {
       // console.log(memberData)
       memberData.push(newMember._id);
     }
+    const price = memberData.length * item.price * duration;
+
+    const equipmentData = [];
+    for (const equipment of equipments) {
+      const {
+        jumlahTenda,
+        jumlahKompor,
+        jumlahMatras,
+        jumlahP3k,
+        jumlahSleepingBag,
+        jumlahCarrier,
+        jumlahHeadlamp,
+      } = equipment;
+      const newEquipment = await Equipment.create({
+        jumlahTenda,
+        jumlahKompor,
+        jumlahMatras,
+        jumlahP3k,
+        jumlahSleepingBag,
+        jumlahCarrier,
+        jumlahHeadlamp,
+      });
+
+      equipmentData.push(newEquipment._id);
+    }
+    const idMember = memberData[0];
+    const findMember = await Member.findOne({ _id: idMember });
+    const memberName = findMember.nameMember;
+    const memberEmail = findMember.emailMember;
+    const memberPhone = findMember.phoneMember;
+    const memberAddress = findMember.addressMember;
+
+    const data_url = await fetchDataPayment(
+      price,
+      invoice,
+      memberName,
+      memberEmail,
+      memberPhone,
+      memberAddress
+    );
 
     const newBooking = {
       invoice: invoice,
       bookingStartDate: startDateBooking,
       bookingEndDate: endDateBooking,
       memberId: memberData,
-      total: total,
+      EquipmentId: equipmentData,
+      total: price,
       track: trackName,
       itemId: {
         _id: item._id,
@@ -274,10 +402,14 @@ module.exports = {
         price: item.price,
         duration: duration,
       },
+      profileId: {
+        _id: profileId,
+        username: profileUsername,
+      },
       payments: {
-        proofPayment: 'images/oke.jpg',
-        bankFrom: bankName,
-        accountHolder: nameAccountBank,
+        payment_status: "waiting",
+        midtrans_url: data_url,
+        midtrans_booking_code: "",
       },
     };
 
@@ -290,8 +422,41 @@ module.exports = {
     console.log(userer);
     userer.bookingId.push(booking._id);
     await userer.save();
-    res.status(200).json({ 
-      message: "Success Booking", booking
-     });
+    res.status(200).json({
+      message: "Success Booking",
+      booking,
+    });
+  },
+  viewDashboard: async (req, res) => {
+    const { id } = req.params;
+
+    try {
+      const findDataMember = await Booking.find({ "profileId._id": id });
+
+      if (findDataMember && findDataMember.length > 0) {
+        console.log(findDataMember);
+        // Di sini, Anda dapat menampilkan data atau melanjutkan dengan logika bisnis Anda.
+        res.status(200).json(findDataMember); // Contoh: Mengirim data sebagai respons JSON
+      } else {
+        res.status(404).json({ message: "Data member tidak ditemukan" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Terjadi kesalahan server" });
+    }
+  },
+  ticketShow: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const findIdBooking = await Booking.findOne({ _id: id });
+      const member = findIdBooking.memberId;
+
+      for (let i = 0; i < findIdBooking.memberId.length; i++) {
+        console.log(member[i]);
+      }
+      res.status(200).json({
+        data: member,
+      });
+    } catch (error) {}
   },
 };

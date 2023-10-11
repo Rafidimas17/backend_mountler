@@ -1,7 +1,7 @@
 <!-- DataTales Example -->
 <div class="card shadow mb-4">
   <div class="card-header py-3">
-    <h6 class="m-0 font-weight-bold text-primary">DataTables Example</h6>
+    <h6 class="m-0 font-weight-bold text-primary">Data Pemesanan</h6>
   </div>
   <div class="card-body">
     <div class="table-responsive">
@@ -10,28 +10,27 @@
           <tr>
             <th>No</th>
             <th>Invoice</th>
-            <th>Date</th>
-            <th>Title</th>
+            <th>Tanggal</th>
+            <th>Nama Gunung</th>
             <th>Track</th>
-            <th>Name Bank</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          <% console.log(booking)%>
+
           <% for(let i = 0; i < booking.length; i++){ %>
           <tr>
             <td><%= i + 1 %></td>
-            <td>#<%= booking[i].invoice %></td>
+            <td><%= booking[i].invoice %></td>
             <td><%= booking[i].bookingStartDate.toLocaleString().split(',')[0] %> s/d
               <%= booking[i].bookingEndDate.toLocaleString().split(',')[0] %>
             </td>
             <td><%= booking[i].itemId.title %></td>
             <td><%= booking[i].track %></td>
-            <td><%= booking[i].payments.bankFrom %></td>
             <td>
-              <p class="<%= booking[i].payments.status === 'Proses' ? 'bg-warning text-white text-center' : (booking[i].payments.status === 'Accept' ? 'bg-success text-white text-center' : 'bg-danger text-white text-center') %>" style="height: 100%;border-radius:20px;">
+              <p class="<%= booking[i].payments.status === 'Proses' ? 'bg-warning text-white text-center' : (booking[i].payments.status === 'Accept' ? 'bg-success text-white text-center' : 'bg-danger text-white text-center') %>"
+                style="height: 100%;border-radius:20px;">
                 <%= booking[i].payments.status %>
 
               </p>

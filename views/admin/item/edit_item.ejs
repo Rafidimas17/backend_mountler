@@ -14,12 +14,13 @@
         </div>
         <div class="form-group">
           <label for="name">Ketinggian</label>
-          <input type="text" class="form-control" name="highest" value="<%= item.highest %>" placeholder="Enter track" required>
+          <input type="text" class="form-control" name="highest" value="<%= item.highest %>" placeholder="Enter track"
+            required>
         </div>
         <div class="form-group">
           <label for="name">Category</label>
           <select class="form-control" name="categoryId">
-            <% console.log(item.categoryId[0]) %>
+
             <option value="<%= item.categoryId[0]._id %>">--- <%= item.categoryId[0].name %> ---</option>
             <% for(let i = 0; i< category.length; i++){ %>
             <option value="<%= category[i].id %>"><%= category[i].name %></option>
@@ -28,7 +29,7 @@
         </div>
         <div class="form-group">
           <label for="name">Image</label>
-          <input type="file" class="form-control" name="image" multiple>
+          <input type="file" class="form-control" name="image" multiple required>
         </div>
         <div class="form-group">
           <label for="name">Description</label>
