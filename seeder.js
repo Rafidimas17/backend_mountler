@@ -30,27 +30,12 @@ seeder.connect(
     ]);
 
     // Clear specified collections
-    seeder.clearModels(
-      [
-        "Category",
-        "Bank",
-        "Item",
-        "Member",
-        "Equipment",
-        "Item",
-        "Feature",
-        "Image",
-        "Booking",
-        "Users",
-        "Track",
-      ],
-      function () {
-        // Callback to populate DB once collections have been cleared
-        seeder.populateModels(data, function () {
-          seeder.disconnect();
-        });
-      }
-    );
+    seeder.clearModels(["Booking"], function () {
+      // Callback to populate DB once collections have been cleared
+      seeder.populateModels(data, function () {
+        seeder.disconnect();
+      });
+    });
   }
 );
 

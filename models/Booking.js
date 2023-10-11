@@ -75,8 +75,18 @@ const bookingSchema = new mongoose.Schema({
     ref: "Bank",
   },
   boarding: {
-    type: String,
-    default: "Registrasi",
+    boarding_status: {
+      type: String,
+      default: null,
+    },
+    boarding_start: {
+      type: String,
+      default: null,
+    },
+    boarding_end: {
+      type: String,
+      default: null,
+    },
   },
   payments: {
     payment_status: {
