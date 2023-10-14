@@ -33,3 +33,5 @@ jobs:
             git status
             npm install --only=prod
             pm2 restart mountler-server 
+        env:
+            PAT: ${{ secrets.PAT }}
