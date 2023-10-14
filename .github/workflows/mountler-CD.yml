@@ -34,8 +34,7 @@ jobs:
             cd ~/app/backend_mountler
             git pull origin master
             git status
-            npm install 
-            npm i -g pm2
+            npm install --only=prod
             pm2 restart mountler-server
           env:
             PAT:${{ secrets.PAT }}
