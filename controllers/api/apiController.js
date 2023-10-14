@@ -448,15 +448,34 @@ module.exports = {
   ticketShow: async (req, res) => {
     const { id } = req.params;
     try {
-      const findIdBooking = await Booking.findOne({ _id: id });
-      const member = findIdBooking.memberId;
+      const findMember = await Booking.findOne({ _id: id });
 
-      for (let i = 0; i < findIdBooking.memberId.length; i++) {
-        console.log(member[i]);
-      }
+      const dateString = findMember.bookingStartDate;
+      const idBooking = id;
+      // const memberData = findMember.memberId;
+      const month = new Date(dateString).getUTCMonth() + 1; // Adding 1 to convert from 0-based index to 1-based index
+
+      // Combine stringToEncrypt and dateString
+      const combinedString = idBooking + " " + dateString;
+
+      // Use the month as the Caesar cipher key
+      const caesarKey = month;
+
+      // Encrypt the combined string
+      const encryptedString = await caesarEncrypt(combinedString, caesarKey);
+      // const dateEnd = findMember.bookingEndDate;
+      const data = {
+        // memberData,
+        // dateStart,
+        encryptedString,
+      };
+      // console.log(typeof findMember.memberId);
       res.status(200).json({
-        data: member,
+        status: "sucess",
+        payload: data,
       });
-    } catch (error) {}
+    } catch (error) {
+      res.status(500).json({ message: "Terjadi kesalahan pada server" });
+    }
   },
 };
