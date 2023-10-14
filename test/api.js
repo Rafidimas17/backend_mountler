@@ -8,7 +8,7 @@ describe("Item API Testing", () => {
     const expectedHero = {
       travelers: 41,
       treasures: 2,
-      cities: 1,
+      cities: 2,
     };
     const expectedMostPicked = [
       {
