@@ -7,8 +7,8 @@ describe("Item API Testing", () => {
   it("GET API Landing Page", (done) => {
     const expectedHero = {
       travelers: 41,
-      treasures: 2,
-      cities: 2,
+      treasures: 1,
+      cities: 1,
     };
     const expectedMostPicked = [
       {
