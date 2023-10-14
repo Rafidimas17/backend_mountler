@@ -90,7 +90,7 @@ describe("Item API Testing", () => {
           assert.deepEqual(res.body.category, expectedCategory);
           assert.deepEqual(res.body.testimonial, expectedTestimonial);
         } else if (res.status === 404) {
-          assert.equal(res.body.message, "Empty Item");
+          assert.equal(res.body.message, "Empty Item in here");
         } else {
           done(err);
         }
