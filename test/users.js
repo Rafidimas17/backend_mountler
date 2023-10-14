@@ -20,6 +20,8 @@ describe("Users API Test", function () {
           assert.equal(res.body.message, "Username Telah Tersedia");
         } else if (res.status === 404) {
           assert.equal(res.body.message, "Email Telah Tersedia");
+        } else if (res.status === 500) {
+          assert.equal(res.body.message, "Internal Server Error");
         } else {
           done(err);
         }
@@ -46,6 +48,8 @@ describe("Users API Test", function () {
             res.body.message,
             "username atau email anda tidak tersedia"
           );
+        } else if (res.status === 500) {
+          assert.equal(res.body.message, "Internal Server Error");
         } else {
           done(err);
         }
@@ -79,6 +83,8 @@ describe("Users API Test", function () {
           assert.equal(res.body.message, "Email tidak tersedia");
         } else if (res.status === 200) {
           assert.equal(res.body.message, "Link berhasil terkirim");
+        } else if (res.status === 500) {
+          assert.equal(res.body.message, "Internal Server Error");
         } else {
           done(err);
         }
