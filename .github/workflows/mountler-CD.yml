@@ -6,7 +6,7 @@ name: CD
 # events but only for the master branch
 on:
   push:
-    branches: [master]
+    branches: [main]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -29,7 +29,7 @@ jobs:
           port: 22
           script: |
             cd ~/app/node-cicd-sample
-            git pull origin master
+            git pull origin main
             git status
             npm install --only=prod
             pm2 restart app-sample
