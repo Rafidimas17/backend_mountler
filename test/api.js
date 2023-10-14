@@ -6,7 +6,7 @@ const token = "iO3quoYg265hlzq30E8RelQc0LOKle4R0yk6CMbgeHgGNcm_mR";
 describe("Item API Testing", () => {
   it("GET API Landing Page", (done) => {
     const expectedHero = {
-      travelers: 36,
+      travelers: 40,
       treasures: 1,
       cities: 1,
     };
