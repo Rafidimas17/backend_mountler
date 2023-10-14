@@ -1,13 +1,13 @@
 const assert = require("chai").assert;
 const request = require("supertest");
-const app = require("../app"); 
+const app = require("../app");
 
 describe("Users API Test", function () {
   it("should create a new user", function (done) {
     const userData = {
-      username: "wahyudarmawan01",
-      email: "example@example.com",
-      password: "password123",
+      username: "testing123456789",
+      email: "testing123456789@example.com",
+      password: "testing123456789",
     };
 
     request(app)
@@ -32,62 +32,59 @@ describe("Users API Test", function () {
       password: "password123",
     };
     request(app)
-    .post('/api-v1/login')
-    .send(loginData)
-    .end((err,res)=>{
-        if(res.status===200){
-            assert.equal(res.body.message,"Berhasil")
+      .post("/api-v1/login")
+      .send(loginData)
+      .end((err, res) => {
+        if (res.status === 200) {
+          assert.equal(res.body.message, "Berhasil");
+        } else if (res.status === 402) {
+          assert.equal(res.body.message, "Email belum terverifikasi");
+        } else if (res.status === 404) {
+          assert.equal(res.body.message, "Periksa kembali password anda");
+        } else if (res.status === 401) {
+          assert.equal(
+            res.body.message,
+            "username atau email anda tidak tersedia"
+          );
+        } else {
+          done(err);
         }
-        else if(res.status === 402){
-            assert.equal(res.body.message,"Email belum terverifikasi")
-        }
-        else if(res.status === 404){
-            assert.equal(res.body.message,"Periksa kembali password anda")
-        }
-        else if(res.status === 401){
-            assert.equal(res.body.message,"username atau email anda tidak tersedia")
-        }
-        else{
-            done(err)
-        }
-        done()
-    })
+        done();
+      });
   });
-  it('Should user verify email',(done)=>{
-    const tokenAktif="2738d6c32e18eee33a360f955390a66f930e41f56dc8f9dd75ac3cd7e453817001263796e7c6753a9311328c41dedaed8a9f4fe720ba0a879bf0c91d16d5edec"
+  it("Should user verify email", (done) => {
+    const tokenAktif =
+      "2738d6c32e18eee33a360f955390a66f930e41f56dc8f9dd75ac3cd7e453817001263796e7c6753a9311328c41dedaed8a9f4fe720ba0a879bf0c91d16d5edec";
     request(app)
-    .get(`/api-v1/verify-email/${tokenAktif}`)
-    .end((err,res)=>{
-    if(res.status===200){
-        assert.equal(res.body.message,'Email verified successfully')
-    }else if(res.status === 500){
-        assert.equal(res.body.message,"Internal Server Error")
-    }else{
-        done(err)
-    }
-    done()
-    })
-  })
-  
-  
-  it('Should user forgot password',(done)=>{
-    const email={email:"example@example.com"}
+      .get(`/api-v1/verify-email/${tokenAktif}`)
+      .end((err, res) => {
+        if (res.status === 200) {
+          assert.equal(res.body.message, "Email verified successfully");
+        } else if (res.status === 500) {
+          assert.equal(res.body.message, "Internal Server Error");
+        } else {
+          done(err);
+        }
+        done();
+      });
+  });
+
+  it("Should user forgot password", (done) => {
+    const email = { email: "example@example.com" };
     request(app)
-    .put('/api-v1/forgot-password')
-    .send(email)
-    .end((err,res)=>{
-      if(res.status === 404){
-        assert.equal(res.body.message,'Email tidak tersedia')
-      }
-      else if(res.status === 200){
-        assert.equal(res.body.message,'Link berhasil terkirim')
-      }
-      else{
-        done(err)
-      }
-      done()
-    })
-  })
+      .put("/api-v1/forgot-password")
+      .send(email)
+      .end((err, res) => {
+        if (res.status === 404) {
+          assert.equal(res.body.message, "Email tidak tersedia");
+        } else if (res.status === 200) {
+          assert.equal(res.body.message, "Link berhasil terkirim");
+        } else {
+          done(err);
+        }
+        done();
+      });
+  });
   // it('should reset user password', function (done) {
   //   const mockUser = {
   //     resetPassword: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0YjAyM2Q4N2ZiOGQ5M2U0YzFlMTJlZSIsImlhdCI6MTY4OTI2NzQ2NH0.1dctMcuTkL0CNy23-9MdEEPRrArW8If8rpM9GIKdHLg",
@@ -145,5 +142,4 @@ describe("Users API Test", function () {
   //       }
   //     });
   // });
-  
 });
