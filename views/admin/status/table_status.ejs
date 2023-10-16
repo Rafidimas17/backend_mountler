@@ -18,7 +18,7 @@
         </thead>
         <tbody>
           <% booking.forEach((item, index) => { %>
-          <% if (item.payments.status === 'Accept' && item.payments.boarding==="Registrasi" || "Mendaki") { %>
+          <% if (item.payments.payment_status === 'paid' && item.boarding.boarding_status==="Registrasi" || "Mendaki") { %>
           <tr>
             <td><%= index + 1 %></td>
             <td><%= item.invoice %></td>
@@ -27,7 +27,7 @@
             <td><%= item.bookingEndDate.toLocaleString().split(',')[0] %></td>
             <td>
               <p class="bg-success text-white text-center" style="border-radius:20px;">
-                <%= item.boarding %>
+                <%= item.boarding.boarding_status %>
               </p>
             </td>
             <td class="d-flex justify-content-center">

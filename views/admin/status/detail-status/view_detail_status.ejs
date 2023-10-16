@@ -12,7 +12,7 @@
     <div id="content">
 
       <%- include('../../../partials/navbar.ejs') %>
-      <p class="halo" id="boarding-status" hidden value="<% booking.boarding %>"></p>
+      <p class="halo" id="boarding-status" hidden value="<%= booking.boarding.boarding_status %>"></p>
       <!-- Begin Page Content -->
       <div class="container-fluid">
         <%- include('../../../partials/alert.ejs') %>
@@ -24,29 +24,29 @@
           <div id="progress-bar-container">
             <div class="stepper">
               <div
-                class="step <%= booking.boarding === "Registrasi" ? 'active' : '' %> <%= booking.boarding === "Mendaki" || "Selesai"  ? 'completed' : '' %>">
+                class="step <%= booking.boarding.boarding_status === "Registrasi" ? 'active' : '' %> <%= booking.boarding.boarding_status === "Mendaki" || "Selesai"  ? 'completed' : '' %>">
                 <div class="step-label"></div>
                 <div class="step-description">Mulai Mendaki</div>
               </div>
               <div
-                class="step <%= booking.boarding === "Mendaki" ? 'active' : '' %> <%= booking.boarding === "Selesai" ? 'completed' : '' %>">
+                class="step <%= booking.boarding.boarding_status === "Mendaki" ? 'active' : '' %> <%= booking.boarding.boarding_status === "Selesai" ? 'completed' : '' %>">
                 <div class="step-label"></div>
                 <div class="step-description">Mendaki</div>
               </div>
               <div
-                class="step <%= booking.boarding === "Selesai" ? 'completed' : '' %> <%= booking.boarding === "Selesai" ? 'completed' : '' %>">
+                class="step <%= booking.boarding.boarding_status === "Selesai" ? 'completed' : '' %> <%= booking.boarding.boarding_status === "Selesai" ? 'completed' : '' %>">
                 <div class="step-label"></div>
                 <div class="step-description">Selesai Mendaki</div>
               </div>
 
             </div>
             <!-- progress-bar-container -->
-            <div id="progress-content-section d-block" class="halo" value="<% booking.boarding %>">
+            <div id="progress-content-section d-block" class="halo" value="<%= booking.boarding.boarding_status %>">
 
               <div
-                class="section-content step1 <% if (booking.boarding === "Registrasi" || "Mendaki") { %>active<% } %> d-block">
+                class="section-content step1 <% if (booking.boarding.boarding_status === "Registrasi" || "Mendaki") { %>active<% } %> d-block">
                 <div id="reader"
-                  class="<% if (booking.boarding === "Registrasi" || "Mendaki") { %>d-block<% } else { %>d-none<% } %>">
+                  class="<% if (booking.boarding.boarding_status === "Registrasi" || "Mendaki") { %>d-block<% } else { %>d-none<% } %>">
                 </div>
                 <div id="result"></div>
               </div>
@@ -103,7 +103,7 @@
   const readerElement = document.getElementById('reader');
 
   // Set nilai atribut "value" dengan hasil ekspresi EJS
-  haloElement.setAttribute('value', '<%= booking.boarding %>');
+  haloElement.setAttribute('value', '<%= booking.boarding.boarding_status %>');
 
   // Ambil nilai dari atribut "value" yang baru diatur
   const getHalo = haloElement.getAttribute('value');
@@ -191,5 +191,4 @@
   }
 </script>
 
-<script src="./node_modules/html5-qrcode/html5-qrcode.min.js"></script>
-<%- include('../../../partials/script.ejs') %>
+
