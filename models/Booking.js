@@ -87,6 +87,14 @@ const bookingSchema = new mongoose.Schema({
       type: String,
       default: null,
     },
+    startAt: {
+      type: Date,
+      default: null,
+    },
+    endAt: {
+      type: Date,
+      default: null,
+    },
   },
   payments: {
     payment_status: {
@@ -95,10 +103,6 @@ const bookingSchema = new mongoose.Schema({
     },
     midtrans_url: {
       type: String,
-    },
-    midtrans_booking_code: {
-      type: String,
-      default: null,
     },
     status: {
       type: String,

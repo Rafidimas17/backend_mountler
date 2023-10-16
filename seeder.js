@@ -19,6 +19,7 @@ seeder.connect(
       "./models/Item",
       "./models/Equipment",
       "./models/Feature",
+      "./models/QrCode",
       "./models/Activity",
       "./models/Member",
       "./models/Image",
@@ -30,12 +31,6 @@ seeder.connect(
     ]);
 
     // Clear specified collections
-    seeder.clearModels(["Booking"], function () {
-      // Callback to populate DB once collections have been cleared
-      seeder.populateModels(data, function () {
-        seeder.disconnect();
-      });
-    });
   }
 );
 
