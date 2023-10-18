@@ -120,13 +120,10 @@ async function changeDate(data) {
   return formattedDate;
 }
 async function encrypt(text, key) {
-  const iv = key; // Inisialisasi vektor yang acak
-  const cipher = crypto.createCipheriv("aes-128-cbc", Buffer.from(key), iv);
-
-  let encryptedText = cipher.update(text, "utf8", "hex");
-  encryptedText += cipher.final("hex");
-
-  return encryptedText;
+  const cipher = crypto.createCipheriv("aes-128-cbc", key, Buffer.alloc(16, 0));
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
 }
 
 async function generateQRCode(text, fileName, condition) {
@@ -500,42 +497,34 @@ module.exports = {
       const item = findMember.itemId.title;
       const track = findMember.track;
       const invoice = findMember.invoice;
-      const invoice_start = findMember.invoice.repeat(2);
-      const invoice_end = findMember.invoice
-        .split("")
-        .reverse()
-        .join("")
-        .repeat(2);
       const memberData = findMember.memberId;
       const memberName = [];
       const memberNoId = [];
       const qr_start = [];
       const qr_end = [];
       const data_user = [];
+      const key = id.slice(0, 16);
+      console.log(key);
 
       // Fungsi untuk mengenkripsi data
       async function processMemberData() {
         for (let i = 0; i < memberData.length; i++) {
           memberName.push(memberData[i].nameMember);
           memberNoId.push(memberData[i].noIdMember);
-          const qr_data_start = await encrypt(
-            memberData[i].nameMember,
-            invoice_start
-          );
+          const plaintext_start = id.concat(memberData[i].nameMember);
+          const qr_data_start = await encrypt(plaintext_start, key);
           const namaSplit = memberData[i].nameMember.split(" ");
           const nameValue = namaSplit[0];
           const condition_start = "start";
+
           const qrCodeFileName = `${nameValue
             .toLowerCase()
             .replace(/\s/g, "_")}`;
           await generateQRCode(qr_data_start, qrCodeFileName, condition_start);
           const imageUrlStart = `/images/qr-code/${qrCodeFileName}_${condition_start}.png`;
           qr_start.push(imageUrlStart);
-
-          const qr_data_end = await encrypt(
-            memberData[i].nameMember,
-            invoice_end
-          );
+          const plaintext_end = id.concat(memberData[i].nameMember);
+          const qr_data_end = await encrypt(plaintext_end, key);
           const condition_end = "end";
           await generateQRCode(qr_data_end, qrCodeFileName, condition_end);
           const imageUrlEnd = `/images/qr-code/${qrCodeFileName}_${condition_end}.png`;
@@ -566,7 +555,7 @@ module.exports = {
         endDate,
       };
 
-      res.status(200).json({ status: "sucess", payload: data });
+      return res.status(200).json({ status: "sucess", payload: data });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
