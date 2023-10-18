@@ -6,6 +6,10 @@ const Equipment = require("../../models/Equipment");
 const Users = require("../../models/Users");
 const Member = require("../../models/Member");
 const axios = require("axios");
+const crypto = require("crypto");
+const qrcode = require("qrcode");
+const fs = require("fs").promises;
+const path = require("path");
 const Profile = require("../../models/Profile");
 const Track = require("../../models/Track");
 
@@ -102,8 +106,43 @@ async function fetchDataPayment(
     // Mencetak data_pay di sini setelah promise selesai
     return data_pay; // Mengembalikan data_pay jika perlu
   } catch (error) {
-    console.log(error);
+    return error;
     throw error; // Melempar kesalahan jika perlu
+  }
+}
+async function changeDate(data) {
+  const inputDate = new Date(data);
+  const day = inputDate.getUTCDate();
+  const month = inputDate.toLocaleString("default", { month: "long" });
+  const year = inputDate.getUTCFullYear();
+
+  const formattedDate = `${day} ${month} ${year}`;
+  return formattedDate;
+}
+async function encrypt(text, key) {
+  const cipher = crypto.createCipheriv("aes-128-cbc", key, Buffer.alloc(16, 0));
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
+}
+
+async function generateQRCode(text, fileName, condition) {
+  try {
+    // Buat QR code dari teks dengan versi 5
+    const qrData = await qrcode.toDataURL(text, { version: 5 });
+
+    // Simpan QR code di dalam folder "public/images/qr-code" dalam format PNG
+    const imagePath = path.join(
+      __dirname,
+      "../../public/images/qr-code",
+      `${fileName}_${condition}.png`
+    );
+
+    // Decode base64 data dan simpan ke file
+    const data = qrData.replace(/^data:image\/png;base64,/, "");
+    await fs.writeFile(imagePath, data, "base64");
+  } catch (error) {
+    return null;
   }
 }
 
@@ -123,7 +162,11 @@ module.exports = {
           path: "itemId",
           select: "_id title country city isPopular imageId trackId",
           perDocumentLimit: 5,
-          options: { sort: { sumBooking: -1 } },
+          options: {
+            sort: {
+              sumBooking: -1,
+            },
+          },
           populate: [
             {
               path: "trackId",
@@ -256,14 +299,10 @@ module.exports = {
         })
         .catch((err) => {
           // console.error(err);
-          res.status(402).json({
-            message: "Item Tidak Tersedia",
-          });
+          res.status(402).json({ message: "Item Tidak Tersedia" });
         });
     } catch (error) {
-      res.status(500).json({
-        message: "Item Tidak Tersedia",
-      });
+      res.status(500).json({ message: "Item Tidak Tersedia" });
     }
   },
 
@@ -302,8 +341,7 @@ module.exports = {
     if (!item) {
       return res.status(404).json({ message: "Item not found" });
     }
-    // const tracks=item.trackId[0].name;
-    // console.log(item)
+    // const tracks=item.trackId[0].name; console.log(item)
     item.sumBooking += 1;
     const parts = token.split(".");
     const payloadBase64 = parts[1];
@@ -417,15 +455,16 @@ module.exports = {
     item.memberId.push(...memberData);
     await item.save();
 
-    const userer = await Users.findOne({ itemId: { $in: [idItem] } });
+    const userer = await Users.findOne({
+      itemId: {
+        $in: [idItem],
+      },
+    });
 
     console.log(userer);
     userer.bookingId.push(booking._id);
     await userer.save();
-    res.status(200).json({
-      message: "Success Booking",
-      booking,
-    });
+    res.status(200).json({ message: "Success Booking", booking });
   },
   viewDashboard: async (req, res) => {
     const { id } = req.params;
@@ -435,7 +474,8 @@ module.exports = {
 
       if (findDataMember && findDataMember.length > 0) {
         console.log(findDataMember);
-        // Di sini, Anda dapat menampilkan data atau melanjutkan dengan logika bisnis Anda.
+        // Di sini, Anda dapat menampilkan data atau melanjutkan dengan logika bisnis
+        // Anda.
         res.status(200).json(findDataMember); // Contoh: Mengirim data sebagai respons JSON
       } else {
         res.status(404).json({ message: "Data member tidak ditemukan" });
@@ -448,34 +488,87 @@ module.exports = {
   ticketShow: async (req, res) => {
     const { id } = req.params;
     try {
-      const findMember = await Booking.findOne({ _id: id });
+      const findMember = await Booking.findOne({ _id: id }).populate(
+        "memberId"
+      );
 
-      const dateString = findMember.bookingStartDate;
-      const idBooking = id;
-      // const memberData = findMember.memberId;
-      const month = new Date(dateString).getUTCMonth() + 1; // Adding 1 to convert from 0-based index to 1-based index
+      const startDate = await changeDate(findMember.bookingStartDate);
+      const endDate = await changeDate(findMember.bookingEndDate);
+      const item = findMember.itemId.title;
+      const track = findMember.track;
+      const invoice = findMember.invoice;
+      const memberData = findMember.memberId;
+      const memberName = [];
+      const memberNoId = [];
+      const qr_start = [];
+      const qr_end = [];
+      const data_user = [];
+      const key = id.slice(0, 16);
+      console.log(key);
 
-      // Combine stringToEncrypt and dateString
-      const combinedString = idBooking + " " + dateString;
+      // Fungsi untuk mengenkripsi data
+      async function processMemberData() {
+        for (let i = 0; i < memberData.length; i++) {
+          memberName.push(memberData[i].nameMember);
+          memberNoId.push(memberData[i].noIdMember);
+          const plaintext_start = id.concat(memberData[i].nameMember);
+          const qr_data_start = await encrypt(plaintext_start, key);
+          const namaSplit = memberData[i].nameMember.split(" ");
+          const nameValue = namaSplit[0];
+          const condition_start = "start";
 
-      // Use the month as the Caesar cipher key
-      const caesarKey = month;
+          const qrCodeFileName = `${nameValue
+            .toLowerCase()
+            .replace(/\s/g, "_")}`;
+          await generateQRCode(qr_data_start, qrCodeFileName, condition_start);
+          const imageUrlStart = `/images/qr-code/${qrCodeFileName}_${condition_start}.png`;
+          qr_start.push(imageUrlStart);
+          const plaintext_end = id.concat(memberData[i].nameMember);
+          const qr_data_end = await encrypt(plaintext_end, key);
+          const condition_end = "end";
+          await generateQRCode(qr_data_end, qrCodeFileName, condition_end);
+          const imageUrlEnd = `/images/qr-code/${qrCodeFileName}_${condition_end}.png`;
+          qr_end.push(imageUrlEnd);
+        }
 
-      // Encrypt the combined string
-      const encryptedString = await caesarEncrypt(combinedString, caesarKey);
-      // const dateEnd = findMember.bookingEndDate;
+        for (let i = 0; i < memberName.length; i++) {
+          const anggota = {
+            nama: memberName[i],
+            no_id: memberNoId[i],
+            qrStart: qr_start[i],
+            qrEnd: qr_end[i],
+          };
+          data_user.push(anggota);
+        }
+      }
+
+      // Panggil fungsi async untuk memproses data anggota dan tunggu hingga selesai
+      await processMemberData();
+      console.log(qr_start);
+
       const data = {
-        // memberData,
-        // dateStart,
-        encryptedString,
+        memberData: data_user, // Menggunakan data_user yang telah diisi
+        item,
+        invoice,
+        track,
+        startDate,
+        endDate,
       };
-      // console.log(typeof findMember.memberId);
-      res.status(200).json({
-        status: "sucess",
-        payload: data,
-      });
+
+      return res.status(200).json({ status: "sucess", payload: data });
     } catch (error) {
-      res.status(500).json({ message: "Terjadi kesalahan pada server" });
+      res.status(500).json({ message: error.message });
+    }
+  },
+
+  viewProfile: async (req, res) => {
+    const { id } = req.params;
+    try {
+      const findProfile = await Profile.findOne({ _id: id });
+
+      res.status(200).json({ message: "success", payload: findProfile });
+    } catch (error) {
+      res.status(500).json({ message: error.message });
     }
   },
 };
