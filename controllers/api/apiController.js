@@ -5,6 +5,7 @@ const Booking = require("../../models/Booking");
 const Equipment = require("../../models/Equipment");
 const Users = require("../../models/Users");
 const Member = require("../../models/Member");
+const Porter = require("../../models/Porter");
 const axios = require("axios");
 const crypto = require("crypto");
 const qrcode = require("qrcode");
@@ -449,9 +450,13 @@ module.exports = {
         midtrans_url: data_url,
         midtrans_booking_code: "",
       },
+      boarding: {
+        boarding_status: "Registrasi",
+      },
     };
 
     const booking = await Booking.create(newBooking);
+    console.log(booking);
     item.memberId.push(...memberData);
     await item.save();
 
@@ -549,7 +554,8 @@ module.exports = {
 
       // Panggil fungsi async untuk memproses data anggota dan tunggu hingga selesai
       await processMemberData();
-      console.log(qr_start);
+      // console.log(key, typeof key);
+      // console.log(id, typeof id);
 
       const data = {
         memberData: data_user, // Menggunakan data_user yang telah diisi
@@ -574,6 +580,45 @@ module.exports = {
       res.status(200).json({ message: "success", payload: findProfile });
     } catch (error) {
       res.status(500).json({ message: error.message });
+    }
+  },
+  getPorter: async (req, res) => {
+    const { invoice } = req.params;
+    try {
+      const bookingDetails = await Booking.findOne({ invoice: invoice });
+      const itemFind = await Item.findOne({ _id: bookingDetails.itemId._id })
+        .select("porterId")
+        .populate("porterId");
+
+      const filteredPorterId = itemFind.porterId.filter((porter) => {
+        return porter.status === "free" || !porter.startBooking;
+      });
+
+      res.status(200).json({
+        status: "success",
+        invoice: invoice,
+        payload: { ...itemFind.toObject(), porterId: filteredPorterId },
+      });
+    } catch (error) {
+      res.status(404).json({ message: error });
+    }
+  },
+
+  orderPorter: async (req, res) => {
+    const { id, invoice } = req.body;
+    try {
+      const BookingFind = await Booking.findOne({ invoice: invoice });
+      const findPorter = await Porter.findOne({ _id: id });
+      findPorter.startBooking = BookingFind.bookingStartDate;
+      findPorter.endBooking = BookingFind.bookingEndDate;
+      await findPorter.save();
+
+      res.status(200).json({
+        message: "success",
+        payloadPorter: findPorter,
+      });
+    } catch (error) {
+      console.log(error);
     }
   },
 };

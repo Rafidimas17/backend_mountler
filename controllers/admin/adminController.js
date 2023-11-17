@@ -9,12 +9,24 @@ const NodeWebcam = require("node-webcam");
 const Booking = require("../../models/Booking");
 const Member = require("../../models/Member");
 const Users = require("../../models/Users");
+const Porter = require("../../models/Porter");
 const fs = require("fs-extra");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 const axios = require("axios");
 
 const Description = require("../../models/Description");
+
+async function decrypt(encrypted, key) {
+  const decipher = crypto.createDecipheriv(
+    "aes-128-cbc",
+    key,
+    Buffer.alloc(16, 0)
+  );
+  let decrypted = decipher.update(encrypted, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
 
 module.exports = {
   viewSignin: async (req, res) => {
@@ -993,8 +1005,8 @@ module.exports = {
     // Item.find({_id:user.itemId[i]}) }
   },
   scanQrCode: async (req, res) => {
-    const { id } = req.body;
-    const idScan = id.substring(0, 24);
+    const { idScan } = req.body;
+    // const id_booking = idScan.split(0, 16);
 
     try {
       // Cari data booking berdasarkan _id
@@ -1007,7 +1019,7 @@ module.exports = {
       // Periksa apakah booking ditemukan
       if (!booking) {
         // Jika tidak ditemukan, kembalikan respons dengan pesan kesalahan
-        return res.status(404).json({ error: "Booking tidak ditemukan" });
+        return res.status(404).json({ error: idScan });
       }
 
       // Periksa apakah idScan sama dengan _id dalam payload
@@ -1033,6 +1045,35 @@ module.exports = {
       res
         .status(500)
         .json({ error: "Terjadi kesalahan dalam pengolahan data", idScan });
+    }
+  },
+  addPorter: async (req, res) => {
+    const { userId, name, age, no_hp } = req.body;
+    try {
+      const userFind = await Users.findOne({ _id: userId });
+      const itemDetails = await Item.findOne({ _id: userFind.itemId[0] });
+      if (!req.file) {
+        res.status(204).json({
+          message: "File tidak ditemukan",
+        });
+      }
+      const savePorter = await Porter.create({
+        name: name,
+        age: age,
+        imageUrl: `images-porter/${req.file.filename}`,
+        itemId: itemDetails._id,
+        noHandphone: no_hp,
+      });
+      const findItem = await Item.findOne({ _id: savePorter.itemId });
+      findItem.porterId.push(savePorter._id);
+      await findItem.save();
+      res.status(200).json({
+        message: "success",
+        payload: itemDetails,
+        name: name,
+      });
+    } catch (error) {
+      console.log(error);
     }
   },
 };

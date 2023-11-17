@@ -140,12 +140,12 @@
     toggleQRCodeScanning(false);
 
   }
-
+  console.log(result)
   function success(result) {
     if (result !== null) {
       // Buat objek yang akan dikirim sebagai data POST
       const postData = {
-        id: result
+        idScan: result
       };
 
       // Konversi objek menjadi JSON

@@ -10,6 +10,7 @@ async function handleTransactionNotification(notificationJson) {
   return apiClient.transaction
     .notification(notificationJson)
     .then((statusResponse) => {
+      console.log(statusResponse);
       let transactionStatus = statusResponse.transaction_status;
       let fraudStatus = statusResponse.fraud_status;
 
