@@ -21,6 +21,10 @@ const porterSchema = mongoose.Schema({
     type: Number,
     required: true,
   },
+  price: {
+    type: Number,
+    default: 100000,
+  },
   status: {
     type: String,
     default: "free",
@@ -47,6 +51,12 @@ const porterSchema = mongoose.Schema({
     type: ObjectId,
     ref: "Item",
   },
+  bookingId: [
+    {
+      type: String,
+      ref: "Booking",
+    },
+  ],
 });
 
 module.exports = mongoose.model("Porter", porterSchema);

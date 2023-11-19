@@ -1047,11 +1047,37 @@ module.exports = {
         .json({ error: "Terjadi kesalahan dalam pengolahan data", idScan });
     }
   },
-  addPorter: async (req, res) => {
-    const { userId, name, age, no_hp } = req.body;
+  viewPorter: async (req, res) => {
     try {
-      const userFind = await Users.findOne({ _id: userId });
-      const itemDetails = await Item.findOne({ _id: userFind.itemId[0] });
+      const user = await Users.findOne({ _id: req.session.user.id });
+      const item = await Item.find({ _id: user.itemId });
+      const porter = await Porter.find({ itemId: item });
+      // console.log(bank); console.log(item)
+      const alertMessage = req.flash("alertMessage");
+      const alertStatus = req.flash("alertStatus");
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
+      res.render("admin/porter/view_porter", {
+        title: "Cakrawala | Porter",
+        alert,
+        porter,
+        user,
+      });
+    } catch (error) {
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
+    }
+  },
+  addPorter: async (req, res) => {
+    const { name, age, no_hp } = req.body;
+    try {
+      const user = await Users.findOne({ _id: req.session.user.id });
+      // const userId = req.session.user.id;
+      const item = await Item.findOne({ _id: user.itemId });
+
       if (!req.file) {
         res.status(204).json({
           message: "File tidak ditemukan",
@@ -1060,20 +1086,70 @@ module.exports = {
       const savePorter = await Porter.create({
         name: name,
         age: age,
-        imageUrl: `images-porter/${req.file.filename}`,
-        itemId: itemDetails._id,
+        imageUrl: `images/${req.file.filename}`,
+        itemId: item,
         noHandphone: no_hp,
       });
       const findItem = await Item.findOne({ _id: savePorter.itemId });
       findItem.porterId.push(savePorter._id);
       await findItem.save();
-      res.status(200).json({
-        message: "success",
-        payload: itemDetails,
-        name: name,
-      });
+      req.flash("alertMessage", "Success Add Porter");
+      req.flash("alertStatus", "success");
+      res.redirect("/admin/porter");
     } catch (error) {
-      console.log(error);
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
+    }
+  },
+  deletePorter: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Porter.deleteOne({ _id: id });
+      await Item.updateMany(
+        {
+          porterId: id,
+        },
+        {
+          $pull: {
+            porterId: id,
+          },
+        }
+      );
+      req.flash("alertMessage", "Success Delete Porter");
+      req.flash("alertStatus", "success");
+      res.redirect("/admin/porter");
+    } catch (error) {
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
+    }
+  },
+  editPorter: async (req, res) => {
+    const { id, name, age, noHandphone } = req.body;
+    try {
+      const porter = await Porter.findOne({ _id: id });
+      console.log(porter);
+      if (!req.file) {
+        res.status(203).json({
+          message: "Image not found",
+        });
+      }
+      await fs.unlink(path.join(__dirname, `public/${porter.imageUrl}`));
+
+      porter.name = name;
+      porter.age = age;
+      porter.noHandphone = noHandphone;
+      porter.imageUrl = `images/${req.file.filename}`;
+
+      await porter.save();
+      req.flash("alertMessage", "Success Update Porter");
+      req.flash("alertStatus", "success");
+      res.redirect("/admin/porter");
+    } catch (error) {
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
     }
   },
 };

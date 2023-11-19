@@ -52,65 +52,63 @@ async function fetchDataPayment(
   memberName,
   memberEmail,
   memberPhone,
-  memberAddress
+  memberAddress,
+  name_item
 ) {
-  const data_payment = JSON.stringify({
-    transaction_details: {
-      order_id: invoice,
-      gross_amount: total,
-    },
-    item_details: [
-      {
-        id: invoice,
-        price: total,
-        quantity: 1,
-        name: "Gunung Semeru",
-        brand: "Mountler",
-        category: "Pendakian",
-        merchant_name: "Mountler",
-        url: "https://mountler.com",
-      },
-    ],
-    customer_details: {
-      first_name: memberName,
-      last_name: "",
-      email: memberEmail,
-      phone: memberPhone,
-      billing_address: {
-        first_name: memberName,
-        last_name: "",
-        email: memberEmail,
-        phone: memberPhone,
-        address: memberAddress,
-        city: "",
-        postal_code: "",
-        country_code: "IDN",
-      },
-    },
-  });
-
-  let config = {
-    method: "post",
-    maxBodyLength: Infinity,
-    url: "https://app.sandbox.midtrans.com/snap/v1/transactions",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization:
-        "Basic U0ItTWlkLXNlcnZlci1IT0Fvd3pFVkhXQld5bElNUGttZlJPQVE6",
-    },
-    data: data_payment,
-  };
-
   try {
-    const response = await axios.request(config);
-    const data_pay = JSON.stringify(response.data.redirect_url);
-    // Mencetak data_pay di sini setelah promise selesai
-    return data_pay; // Mengembalikan data_pay jika perlu
+    const response = await axios.post(
+      "https://app.sandbox.midtrans.com/snap/v1/transactions",
+      {
+        transaction_details: {
+          order_id: invoice,
+          gross_amount: total,
+        },
+        item_details: [
+          {
+            id: invoice,
+            price: total,
+            quantity: 1,
+            name: name_item,
+            brand: "Mountler",
+            category: "Pendakian",
+            merchant_name: "Mountler",
+            url: "https://mountler.com",
+          },
+        ],
+        customer_details: {
+          first_name: memberName,
+          last_name: "",
+          email: memberEmail,
+          phone: memberPhone,
+          billing_address: {
+            first_name: memberName,
+            last_name: "",
+            email: memberEmail,
+            phone: memberPhone,
+            address: memberAddress,
+            city: "",
+            postal_code: "",
+            country_code: "IDN",
+          },
+        },
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Basic U0ItTWlkLXNlcnZlci1IT0Fvd3pFVkhXQld5bElNUGttZlJPQVE6",
+        },
+      }
+    );
+
+    const dataPay = response.data.redirect_url;
+    return dataPay;
   } catch (error) {
-    return error;
-    throw error; // Melempar kesalahan jika perlu
+    console.error("Error in fetchDataPayment:", error.response);
+    throw error;
   }
 }
+
 async function changeDate(data) {
   const inputDate = new Date(data);
   const day = inputDate.getUTCDate();
@@ -417,14 +415,15 @@ module.exports = {
     const memberEmail = findMember.emailMember;
     const memberPhone = findMember.phoneMember;
     const memberAddress = findMember.addressMember;
-
+    const name_item = item.title;
     const data_url = await fetchDataPayment(
       price,
       invoice,
       memberName,
       memberEmail,
       memberPhone,
-      memberAddress
+      memberAddress,
+      name_item
     );
 
     const newBooking = {
@@ -590,14 +589,22 @@ module.exports = {
         .select("porterId")
         .populate("porterId");
 
-      const filteredPorterId = itemFind.porterId.filter((porter) => {
-        return porter.status === "free" || !porter.startBooking;
-      });
+      const filteredPorterId = itemFind.porterId
+        .filter((porter) => porter.status === "free" || !porter.startBooking)
+        .map(({ status, name, age, imageUrl, noHandphone, id, price }) => ({
+          id,
+          status,
+          name,
+          age,
+          price,
+          imageUrl,
+          noHandphone,
+        }));
 
       res.status(200).json({
         status: "success",
         invoice: invoice,
-        payload: { ...itemFind.toObject(), porterId: filteredPorterId },
+        payload: filteredPorterId,
       });
     } catch (error) {
       res.status(404).json({ message: error });
@@ -608,7 +615,32 @@ module.exports = {
     const { id, invoice } = req.body;
     try {
       const BookingFind = await Booking.findOne({ invoice: invoice });
+      // const bookingMember = BookingFind.populate("memberId");
+      const findMember = BookingFind.memberId[0];
+      const memberData = await Member.findOne({ _id: findMember });
+
       const findPorter = await Porter.findOne({ _id: id });
+
+      const price = findPorter.price * BookingFind.itemId.duration;
+      const memberName = findMember.nameMember;
+      const memberEmail = findMember.emailMember;
+      const memberPhone = findMember.genderMember;
+      const memberAddress = findMember.addressMember;
+      const name_item = findPorter.name;
+      const data_invoice = btoa(invoice.concat(id));
+      const data_url = await fetchDataPayment(
+        price,
+        data_invoice,
+        memberName,
+        memberEmail,
+        memberPhone,
+        memberAddress,
+        name_item
+      );
+      findPorter.payments.payment_url = data_url;
+      findPorter.payments.status = "pending";
+      findPorter.bookingId.push(invoice);
+      findPorter.status = "ordered";
       findPorter.startBooking = BookingFind.bookingStartDate;
       findPorter.endBooking = BookingFind.bookingEndDate;
       await findPorter.save();
@@ -619,6 +651,33 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+    }
+  },
+  changePorterStatus: async (req, res) => {
+    const { order_id } = req.body;
+
+    try {
+      const decodedBuffer = Buffer.from(order_id, "base64");
+      const decodedString = decodedBuffer.toString("utf-8");
+      const [invoice, id] = [decodedString.slice(0, 8), decodedString.slice(8)];
+
+      const findPorter = await Porter.findOne({ _id: id });
+
+      if (findPorter.bookingId.includes(invoice)) {
+        findPorter.payments.status = "paid";
+        findPorter.payments.payment_url = null;
+        await findPorter.save();
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Payment status updated successfully.",
+      });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ success: false, message: "Internal Server Error" });
     }
   },
 };

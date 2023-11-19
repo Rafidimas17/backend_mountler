@@ -64,7 +64,10 @@ router.get(
 router.post("/status/scan-qr", adminController.scanQrCode);
 
 // endpoint porter
-router.post("/add-porter", uploadSingle, adminController.addPorter);
+router.post("/porter", uploadSingle, adminController.addPorter);
+router.get("/porter", adminController.viewPorter);
+router.delete("/porter/:id", adminController.deletePorter);
+router.put("/porter", uploadSingle, adminController.editPorter);
 
 // router.get("/example", adminController.viewExample);
 module.exports = router;
