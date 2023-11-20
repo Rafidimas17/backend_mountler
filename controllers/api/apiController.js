@@ -125,17 +125,23 @@ async function encrypt(text, key) {
   return encrypted;
 }
 
-async function generateQRCode(text, fileName, condition) {
+async function generateQRCode(text, fileName, condition, invoice) {
   try {
     // Buat QR code dari teks dengan versi 5
     const qrData = await qrcode.toDataURL(text, { version: 5 });
-
+    const stringRandom = crypto
+      .randomBytes(Math.ceil(10 / 2))
+      .toString("hex")
+      .slice(0, 10);
     // Simpan QR code di dalam folder "public/images/qr-code" dalam format PNG
     const imagePath = path.join(
       __dirname,
       "../../public/images/qr-code",
-      `${fileName}_${condition}.png`
+      `${fileName}_${condition}_${invoice}_${stringRandom}.png`
     );
+
+    const relativePath = path.relative(__dirname, imagePath);
+    return relativePath;
 
     // Decode base64 data dan simpan ke file
     const data = qrData.replace(/^data:image\/png;base64,/, "");
@@ -464,8 +470,6 @@ module.exports = {
         $in: [idItem],
       },
     });
-
-    console.log(userer);
     userer.bookingId.push(booking._id);
     await userer.save();
     res.status(200).json({ message: "Success Booking", booking });
@@ -540,6 +544,7 @@ module.exports = {
       const memberName = [];
       const memberNoId = [];
       const qr_start = [];
+      const dataName = "";
       const qr_end = [];
       const data_user = [];
       const key = id.slice(0, 16);
@@ -558,7 +563,13 @@ module.exports = {
           const qrCodeFileName = `${nameValue
             .toLowerCase()
             .replace(/\s/g, "_")}`;
-          await generateQRCode(qr_data_start, qrCodeFileName, condition_start);
+          const fileName = await generateQRCode(
+            qr_data_start,
+            qrCodeFileName,
+            condition_start,
+            invoice
+          );
+          fileName = dataName;
           const imageUrlStart = `/images/qr-code/${qrCodeFileName}_${condition_start}.png`;
           qr_start.push(imageUrlStart);
           const plaintext_end = id.concat(memberData[i].nameMember);

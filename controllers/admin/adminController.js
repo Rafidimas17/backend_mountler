@@ -1005,7 +1005,7 @@ module.exports = {
     // Item.find({_id:user.itemId[i]}) }
   },
   scanQrCode: async (req, res) => {
-    const { idScan } = req.body;
+    const { imageUrl } = req.body;
     // const id_booking = idScan.split(0, 16);
 
     try {
