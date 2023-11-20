@@ -74,6 +74,12 @@ const bookingSchema = new mongoose.Schema({
     type: ObjectId,
     ref: "Bank",
   },
+  porterId: [
+    {
+      type: ObjectId,
+      ref: "Porter",
+    },
+  ],
   boarding: {
     boarding_status: {
       type: String,

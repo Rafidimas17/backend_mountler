@@ -477,10 +477,34 @@ module.exports = {
       const findDataMember = await Booking.find({ "profileId._id": id });
 
       if (findDataMember && findDataMember.length > 0) {
-        console.log(findDataMember);
-        // Di sini, Anda dapat menampilkan data atau melanjutkan dengan logika bisnis
-        // Anda.
-        res.status(200).json(findDataMember); // Contoh: Mengirim data sebagai respons JSON
+        const findPorter = await Porter.findOne({
+          bookingId: findDataMember.invoice,
+        });
+
+        // Transform data structure
+        const transformedData = findDataMember.map((booking) => {
+          const {
+            _id,
+            invoice,
+            bookingStartDate,
+            bookingEndDate,
+            payments,
+            itemId,
+            boarding,
+          } = booking;
+
+          return {
+            _id,
+            invoice,
+            bookingStartDate,
+            bookingEndDate,
+            payments,
+            itemId,
+            boarding,
+          };
+        });
+
+        res.status(200).json(transformedData);
       } else {
         res.status(404).json({ message: "Data member tidak ditemukan" });
       }
@@ -489,16 +513,21 @@ module.exports = {
       res.status(500).json({ message: "Terjadi kesalahan server" });
     }
   },
+
   ticketShow: async (req, res) => {
     const { id } = req.params;
     try {
       const findMember = await Booking.findOne({ _id: id }).populate(
         "memberId"
       );
+      const findPorter = await Booking.findOne({ _id: id }).populate(
+        "porterId"
+      );
 
       const startDate = await changeDate(findMember.bookingStartDate);
       const endDate = await changeDate(findMember.bookingEndDate);
       const item = findMember.itemId.title;
+      const duration = findMember.itemId.duration;
       const track = findMember.track;
       const invoice = findMember.invoice;
       const invoice_start = findMember.invoice.repeat(2);
@@ -556,16 +585,27 @@ module.exports = {
       // console.log(key, typeof key);
       // console.log(id, typeof id);
 
+      const data_porter = findPorter.porterId.map(
+        ({ name, noHandphone, id, price }) => ({
+          id,
+          name,
+          noHandphone,
+          total: price * duration,
+        })
+      );
+
       const data = {
+        porterData: data_porter,
         memberData: data_user, // Menggunakan data_user yang telah diisi
         item,
         invoice,
         track,
         startDate,
         endDate,
+        duration,
       };
 
-      return res.status(200).json({ status: "sucess", payload: data });
+      return res.status(200).json({ status: "success", payload: data });
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
@@ -603,11 +643,23 @@ module.exports = {
 
       res.status(200).json({
         status: "success",
-        invoice: invoice,
-        payload: filteredPorterId,
+        payload: filteredPorterId.map((porter) => ({
+          id: porter.id,
+          status: porter.status,
+          name: porter.name,
+          age: porter.age,
+          price: porter.price,
+          imageUrl: porter.imageUrl,
+          noHandphone: porter.noHandphone,
+          invoice: invoice,
+          startDate: bookingDetails.bookingStartDate,
+          endDate: bookingDetails.bookingEndDate,
+          title: bookingDetails.itemId.title,
+          duration: bookingDetails.itemId.duration,
+        })),
       });
     } catch (error) {
-      res.status(404).json({ message: error });
+      console.log(error);
     }
   },
 
@@ -628,6 +680,7 @@ module.exports = {
       const memberAddress = findMember.addressMember;
       const name_item = findPorter.name;
       const data_invoice = btoa(invoice.concat(id));
+
       const data_url = await fetchDataPayment(
         price,
         data_invoice,
@@ -647,37 +700,17 @@ module.exports = {
 
       res.status(200).json({
         message: "success",
-        payloadPorter: findPorter,
+        payload: "Pesanan berhasil",
+        midtrans_url: findPorter.payments.payment_url,
       });
-    } catch (error) {
-      console.log(error);
-    }
-  },
-  changePorterStatus: async (req, res) => {
-    const { order_id } = req.body;
-
-    try {
-      const decodedBuffer = Buffer.from(order_id, "base64");
-      const decodedString = decodedBuffer.toString("utf-8");
-      const [invoice, id] = [decodedString.slice(0, 8), decodedString.slice(8)];
-
-      const findPorter = await Porter.findOne({ _id: id });
-
-      if (findPorter.bookingId.includes(invoice)) {
-        findPorter.payments.status = "paid";
-        findPorter.payments.payment_url = null;
-        await findPorter.save();
+      if (!invoice) {
+        res.status(204).json({
+          message: "success",
+          payload: "Tiket kamu tidak ditemukan",
+        });
       }
-
-      res.status(200).json({
-        success: true,
-        message: "Payment status updated successfully.",
-      });
     } catch (error) {
-      console.error(error);
-      res
-        .status(500)
-        .json({ success: false, message: "Internal Server Error" });
+      res.status(500).json({ message: "Internal server error" });
     }
   },
 };

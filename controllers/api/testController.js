@@ -84,7 +84,7 @@ module.exports = {
           if (paymentStatus === "paid" || paymentStatus === "settlement") {
             orderId.payments.payment_status = "paid";
             orderId.payments.midtrans_url = null;
-            orderId.payments.status = "lunas";
+            orderId.payments.status = "Lunas";
             await orderId.save();
           } else if (paymentStatus === "pending") {
             orderId.payments.payment_status = "pending";
@@ -92,6 +92,7 @@ module.exports = {
           } else if (paymentStatus === "failure") {
             orderId.payments.payment_status = "failure";
             orderId.payments.midtrans_url = null;
+            orderId.payments.status = "Cancel";
             await orderId.save();
           }
         }
@@ -131,6 +132,9 @@ module.exports = {
             findPorter.payments.payment_url = null;
             findPorter.payments.status = "paid";
             await findPorter.save();
+            const findBooking = await Booking.findOne({ invoice: invoice });
+            findBooking.porterId.push(id);
+            await findBooking.save();
           } else if (paymentStatusPorter === "pending") {
             findPorter.payments.status = "pending";
             await findPorter.save();
