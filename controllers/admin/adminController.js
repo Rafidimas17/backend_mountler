@@ -1006,47 +1006,39 @@ module.exports = {
   },
   scanQrCode: async (req, res) => {
     const { imageUrl } = req.body;
-    // const id_booking = idScan.split(0, 16);
 
     try {
-      // Cari data booking berdasarkan _id
-      const booking = await Booking.findOne({ _id: idScan });
-      const user = await Users.findOne({ _id: req.session.user.id });
+      const data_invoice = imageUrl.match(/_([^_]+)_/);
+      const invoice = data_invoice ? data_invoice[1] : null;
 
-      if (!user) {
-        return res.status(401).json({ error: "Pengguna tidak ditemukan" });
+      // Extracting "/images/qr-code/john_start_MT6XNZKY_f70e96c8bf.png"
+      const data_image_url = imageUrl.match(/\/images\/qr-code\/(.+)/);
+      const image_url = data_image_url ? data_image_url[1] : null;
+      const findImage = await Image.findOne({ imageUrl: image_url });
+
+      if (!findImage) {
+        // If the image is not found, return a 404 response with an error message
+        return res.status(404).json({ invoice, image_url });
       }
-      // Periksa apakah booking ditemukan
-      if (!booking) {
-        // Jika tidak ditemukan, kembalikan respons dengan pesan kesalahan
-        return res.status(404).json({ error: idScan });
-      }
 
-      // Periksa apakah idScan sama dengan _id dalam payload
-      if (idScan === booking._id.toString()) {
-        // Jika sama, ubah status menjadi "Mendaki"
-        booking.boarding = "Mendaki";
+      // If the image is found, you can proceed with further actions
+      // For example, you can update the status of the image here if needed
 
-        // Simpan perubahan
-        await booking.save();
-
-        // Kembalikan respons dengan data yang telah diubah
-        return res.status(200).json({
-          message: "Status berhasil diubah menjadi Mendaki",
-          updatedBooking: booking,
-        });
-      } else {
-        // Jika idScan tidak sama dengan _id, kembalikan respons dengan pesan kesalahan
-        return res.status(400).json({ error: "IdScan tidak cocok dengan _id" });
-      }
+      // Return a success response with the data
+      return res.status(200).json({
+        message: "Data ditemukan",
+        invoice,
+        image_url,
+      });
     } catch (error) {
       console.log(error);
-      // Tangani kesalahan lain jika terjadi
+      // Handle other errors if they occur
       res
         .status(500)
-        .json({ error: "Terjadi kesalahan dalam pengolahan data", idScan });
+        .json({ error: "Terjadi kesalahan dalam pengolahan data" });
     }
   },
+
   viewPorter: async (req, res) => {
     try {
       const user = await Users.findOne({ _id: req.session.user.id });

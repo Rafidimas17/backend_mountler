@@ -1,6 +1,7 @@
 const Item = require("../../models/Item");
 const Treveler = require("../../models/Member");
 const Category = require("../../models/Category");
+const Image = require("../../models/Image");
 const Booking = require("../../models/Booking");
 const Equipment = require("../../models/Equipment");
 const Users = require("../../models/Users");
@@ -128,7 +129,7 @@ async function encrypt(text, key) {
 async function generateQRCode(text, fileName, condition, invoice) {
   try {
     // Buat QR code dari teks dengan versi 5
-    const qrData = await qrcode.toDataURL(text, { version: 5 });
+    const qrData = await qrcode.toDataURL(text, { version: 6 });
     const stringRandom = crypto
       .randomBytes(Math.ceil(10 / 2))
       .toString("hex")
@@ -140,14 +141,13 @@ async function generateQRCode(text, fileName, condition, invoice) {
       `${fileName}_${condition}_${invoice}_${stringRandom}.png`
     );
 
-    const relativePath = path.relative(__dirname, imagePath);
-    return relativePath;
-
     // Decode base64 data dan simpan ke file
     const data = qrData.replace(/^data:image\/png;base64,/, "");
     await fs.writeFile(imagePath, data, "base64");
+    const relativePath = `/images/qr-code/${path.basename(imagePath)}`;
+    return relativePath;
   } catch (error) {
-    return null;
+    console.log(error);
   }
 }
 
@@ -569,15 +569,29 @@ module.exports = {
             condition_start,
             invoice
           );
-          fileName = dataName;
-          const imageUrlStart = `/images/qr-code/${qrCodeFileName}_${condition_start}.png`;
+          const imageUrlStart = fileName;
+          const data_qr_start = await Image.create({
+            imageUrl: imageUrlStart,
+          });
           qr_start.push(imageUrlStart);
+          findMember.imageQRStart.push(data_qr_start._id);
+          await findMember.save();
+
           const plaintext_end = id.concat(memberData[i].nameMember);
           const qr_data_end = await encrypt(plaintext_end, key);
           const condition_end = "end";
-          await generateQRCode(qr_data_end, qrCodeFileName, condition_end);
-          const imageUrlEnd = `/images/qr-code/${qrCodeFileName}_${condition_end}.png`;
+          const imageUrlEnd = await generateQRCode(
+            qr_data_end,
+            qrCodeFileName,
+            condition_end,
+            invoice
+          );
+          const data_qr_end = await Image.create({
+            imageUrl: imageUrlEnd,
+          });
           qr_end.push(imageUrlEnd);
+          findMember.imageQREnd.push(data_qr_end._id);
+          await findMember.save();
         }
 
         for (let i = 0; i < memberName.length; i++) {
@@ -587,14 +601,13 @@ module.exports = {
             qrStart: qr_start[i],
             qrEnd: qr_end[i],
           };
+
           data_user.push(anggota);
         }
       }
 
       // Panggil fungsi async untuk memproses data anggota dan tunggu hingga selesai
       await processMemberData();
-      // console.log(key, typeof key);
-      // console.log(id, typeof id);
 
       const data_porter = findPorter.porterId.map(
         ({ name, noHandphone, id, price }) => ({
@@ -618,7 +631,7 @@ module.exports = {
 
       return res.status(200).json({ status: "success", payload: data });
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      console.log(error);
     }
   },
 

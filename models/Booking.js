@@ -80,6 +80,18 @@ const bookingSchema = new mongoose.Schema({
       ref: "Porter",
     },
   ],
+  imageQRStart: [
+    {
+      type: ObjectId,
+      ref: "Image",
+    },
+  ],
+  imageQREnd: [
+    {
+      type: ObjectId,
+      ref: "Image",
+    },
+  ],
   boarding: {
     boarding_status: {
       type: String,
