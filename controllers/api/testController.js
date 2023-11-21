@@ -41,6 +41,31 @@ async function handleTransactionNotification(notificationJson) {
       }
     });
 }
+
+async function generateQRCode(text, fileName, condition, invoice) {
+  try {
+    // Buat QR code dari teks dengan versi 5
+    const qrData = await qrcode.toDataURL(text, { version: 6 });
+    const stringRandom = crypto
+      .randomBytes(Math.ceil(10 / 2))
+      .toString("hex")
+      .slice(0, 10);
+    // Simpan QR code di dalam folder "public/images/qr-code" dalam format PNG
+    const imagePath = path.join(
+      __dirname,
+      "../../public/images/qr-code",
+      `${fileName}_${condition}_${invoice}_${stringRandom}.png`
+    );
+
+    // Decode base64 data dan simpan ke file
+    const data = qrData.replace(/^data:image\/png;base64,/, "");
+    await fs.writeFile(imagePath, data, "base64");
+    const relativePath = `/images/qr-code/${path.basename(imagePath)}`;
+    return relativePath;
+  } catch (error) {
+    console.log(error);
+  }
+}
 module.exports = {
   getNotification: async (req, res) => {
     const {

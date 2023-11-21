@@ -14,6 +14,10 @@ const fs = require("fs-extra");
 const path = require("path");
 const bcrypt = require("bcryptjs");
 const axios = require("axios");
+const moment = require("moment-timezone");
+
+// Atur zona waktu ke GMT+7 (Waktu Indonesia Barat)
+moment.tz.setDefault("Asia/Jakarta");
 
 const Description = require("../../models/Description");
 
@@ -26,6 +30,21 @@ async function decrypt(encrypted, key) {
   let decrypted = decipher.update(encrypted, "hex", "utf8");
   decrypted += decipher.final("utf8");
   return decrypted;
+}
+
+async function getTimeAndDate() {
+  const originalTimestamp = moment.tz("Asia/Jakarta"); // Your original timestamp
+
+  const originalDate = new Date(originalTimestamp);
+
+  originalDate.setHours(originalDate.getHours() + 7);
+
+  if (originalDate.getHours() >= 24) {
+    originalDate.setHours(originalDate.getHours() - 24);
+  }
+
+  const modifiedTimestamp = originalDate.toISOString();
+  return modifiedTimestamp;
 }
 
 module.exports = {
@@ -1008,21 +1027,44 @@ module.exports = {
     const { imageUrl } = req.body;
 
     try {
-      const data_invoice = imageUrl.match(/_([^_]+)_/);
+      const data_invoice = imageUrl.match(/start_([^_]+)_/);
       const invoice = data_invoice ? data_invoice[1] : null;
 
       // Extracting "/images/qr-code/john_start_MT6XNZKY_f70e96c8bf.png"
-      const data_image_url = imageUrl.match(/\/images\/qr-code\/(.+)/);
-      const image_url = data_image_url ? data_image_url[1] : null;
+      const data_image_url = imageUrl.match(/\/images\/qr-code\/([^/]+)$/);
+      const image_url = data_image_url ? data_image_url[0] : null;
+
+      const data_status = imageUrl.match(/\/([^_]+)_start_([^_]+)_/);
+      const status = data_status ? data_status[2] : null;
+      const startCharacter = status ? status.charAt(0) : null;
+
+      // update status based on startCharacter
+      var status_booking = startCharacter ? "start" : "stop";
+
       const findImage = await Image.findOne({ imageUrl: image_url });
 
-      if (!findImage) {
-        // If the image is not found, return a 404 response with an error message
-        return res.status(404).json({ invoice, image_url });
+      const findBooking = await Booking.findOne({ invoice: invoice });
+      if (status === "start") {
+        if (findBooking.imageQRStart.includes(findImage._id)) {
+          findBooking.boarding.boarding_status = "check-in";
+          const getTime = await getTimeAndDate();
+          findBooking.boarding.boarding_start = getTime;
+          await findBooking.save();
+        } else {
+        }
+      } else if (status === "end") {
+        if (findBooking.imageQRStart.includes(findImage._id)) {
+          findBooking.boarding.boarding_status = "check-out";
+          const getTime = await getTimeAndDate();
+          findBooking.boarding.boarding_start = getTime;
+          await findBooking.save();
+        }
+      } else {
+        if (!findImage) {
+          // If the image is not found, return a 404 response with an error message
+          return res.status(404).json({ message: "Item tidak ditemukan" });
+        }
       }
-
-      // If the image is found, you can proceed with further actions
-      // For example, you can update the status of the image here if needed
 
       // Return a success response with the data
       return res.status(200).json({
@@ -1033,9 +1075,7 @@ module.exports = {
     } catch (error) {
       console.log(error);
       // Handle other errors if they occur
-      res
-        .status(500)
-        .json({ error: "Terjadi kesalahan dalam pengolahan data" });
+      res.status(500).json({ message: error.message });
     }
   },
 
