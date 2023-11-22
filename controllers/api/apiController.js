@@ -14,6 +14,8 @@ const fs = require("fs").promises;
 const path = require("path");
 const Profile = require("../../models/Profile");
 const Track = require("../../models/Track");
+const Review = require("../../models/Review");
+const Content = require("../../models/Content");
 
 async function getCurrentDateTime() {
   const currentDate = new Date();
@@ -623,6 +625,7 @@ module.exports = {
         memberData: data_user, // Menggunakan data_user yang telah diisi
         item,
         invoice,
+        status: findMember.boarding.boarding_status,
         track,
         startDate,
         endDate,
@@ -735,6 +738,35 @@ module.exports = {
       }
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
+    }
+  },
+  addReview: async (req, res) => {
+    const { nameItem, name, position, content, rate } = req.body;
+    try {
+      const findItem = await Item.findOne({ title: nameItem }).populate(
+        "reviewId"
+      );
+
+      if (!req.file) {
+        res.status(206).json({ message: "Gambar tidak sesuai" });
+      }
+      const saveImage = await Image.create({ imageUrl: req.file.filename });
+
+      const saveReview = await Review.create({
+        name,
+        position,
+        rate,
+        imageId: saveImage._id,
+        itemId: findItem._id,
+        content: content,
+      });
+
+      findItem.reviewId.push(saveReview._id);
+      await findItem.save();
+
+      res.status(200).json({ message: "Review berhasil ditambahkan" });
+    } catch (error) {
+      res.status(404).json({ message: error.message });
     }
   },
 };

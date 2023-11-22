@@ -20,5 +20,6 @@ router.post("/payment-success", testController.getNotification);
 
 router.get("/list-porter/:invoice", apiController.getPorter);
 router.post("/order-porter", apiController.orderPorter);
+router.post("/add-review", apiController.addReview);
 
 module.exports = router;

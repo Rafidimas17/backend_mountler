@@ -87,6 +87,12 @@ const itemSchema = new mongoose.Schema({
       ref: "DetailItem",
     },
   ],
+  reviewId: [
+    {
+      type: ObjectId,
+      ref: "Review",
+    },
+  ],
   bankId: [
     {
       type: ObjectId,

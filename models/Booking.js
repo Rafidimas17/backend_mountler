@@ -98,18 +98,10 @@ const bookingSchema = new mongoose.Schema({
       default: null,
     },
     boarding_start: {
-      type: String,
-      default: null,
-    },
-    boarding_end: {
-      type: String,
-      default: null,
-    },
-    startAt: {
       type: Date,
       default: null,
     },
-    endAt: {
+    boarding_end: {
       type: Date,
       default: null,
     },

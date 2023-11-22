@@ -1027,8 +1027,11 @@ module.exports = {
     const { imageUrl } = req.body;
 
     try {
-      const data_invoice = imageUrl.match(/start_([^_]+)_/);
-      const invoice = data_invoice ? data_invoice[1] : null;
+      const data_invoice_start = imageUrl.match(/start_([^_]+)_/);
+      const invoice_start = data_invoice_start ? data_invoice_start[1] : null;
+
+      const data_invoice_end = imageUrl.match(/end_([^_]+)_/); // Fix the regular expression here
+      const invoice_end = data_invoice_end ? data_invoice_end[1] : null;
 
       // Extracting "/images/qr-code/john_start_MT6XNZKY_f70e96c8bf.png"
       const data_image_url = imageUrl.match(/\/images\/qr-code\/([^/]+)$/);
@@ -1039,12 +1042,16 @@ module.exports = {
       const startCharacter = status ? status.charAt(0) : null;
 
       // update status based on startCharacter
-      var status_booking = startCharacter ? "start" : "stop";
-
+      var status_booking = startCharacter ? "start" : "end";
+      const status_invoice =
+        startCharacter === "start" ? invoice_start : invoice_end;
       const findImage = await Image.findOne({ imageUrl: image_url });
 
-      const findBooking = await Booking.findOne({ invoice: invoice });
-      if (status === "start") {
+      const findBooking = await Booking.findOne({
+        invoice: status_invoice,
+      });
+
+      if (status_booking === "start") {
         if (findBooking.imageQRStart.includes(findImage._id)) {
           findBooking.boarding.boarding_status = "check-in";
           const getTime = await getTimeAndDate();
@@ -1052,12 +1059,23 @@ module.exports = {
           await findBooking.save();
         } else {
         }
-      } else if (status === "end") {
-        if (findBooking.imageQRStart.includes(findImage._id)) {
+      } else if (status_booking === "end") {
+        if (findBooking.imageQREnd.includes(findImage._id)) {
           findBooking.boarding.boarding_status = "check-out";
           const getTime = await getTimeAndDate();
-          findBooking.boarding.boarding_start = getTime;
+          findBooking.boarding.boarding_end = getTime;
           await findBooking.save();
+
+          for (let i = 0; i < findBooking.porterId.length; i++) {
+            const findPorterEnd = await Porter.findOne({
+              _id: findBooking.porterId[i],
+            });
+            findPorterEnd.status = "free";
+            findPorterEnd.startBooking = null;
+            (findPorterEnd.endBooking = null),
+              (findPorterEnd.payments.status = "waiting");
+            await findPorterEnd.save();
+          }
         }
       } else {
         if (!findImage) {
@@ -1069,8 +1087,9 @@ module.exports = {
       // Return a success response with the data
       return res.status(200).json({
         message: "Data ditemukan",
-        invoice,
-        image_url,
+        invoice: status_invoice,
+        status: status_booking,
+        porter: findBooking.porterId,
       });
     } catch (error) {
       console.log(error);
