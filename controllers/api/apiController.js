@@ -121,11 +121,15 @@ async function changeDate(data) {
   const formattedDate = `${day} ${month} ${year}`;
   return formattedDate;
 }
-async function encrypt(text, key) {
-  const cipher = crypto.createCipheriv("aes-128-cbc", key, Buffer.alloc(16, 0));
-  let encrypted = cipher.update(text, "utf8", "hex");
-  encrypted += cipher.final("hex");
-  return encrypted;
+
+// Function to decrypt using AES-128
+async function decrypt(encryptedText) {
+  const key = "8315dcf89efe45c1"; // Replace with your actual key
+  const iv = Buffer.from("87e7d58225acbed903be44242158f18f", "hex"); // Replace with your actual IV
+  const decipher = crypto.createDecipheriv("aes-128-cbc", Buffer.from(key), iv);
+  let decrypted = decipher.update(encryptedText, "hex", "utf-8");
+  decrypted += decipher.final("utf-8");
+  return decrypted;
 }
 
 async function generateQRCode(text, fileName, condition, invoice) {
@@ -736,30 +740,44 @@ module.exports = {
     }
   },
   addReview: async (req, res) => {
-    const { nameItem, name, position, content, rate } = req.body;
+    const { url, name, position, content, rate } = req.body;
+
+    const concatenatedString = url;
+
+    // console.log(url, name, position, content, rate, req.file.filename);
+
+    // Split the concatenated string using the separator
+    const separator = "asdc!osd3234";
+    const parts = concatenatedString.split(separator);
+
+    const decryptedBooking = await decrypt(parts[0]);
+    const decryptedBookingItem = await decrypt(parts[1]);
     try {
-      const findItem = await Item.findOne({ title: nameItem }).populate(
-        "reviewId"
-      );
+      const findBooking = await Booking.findOne({ _id: decryptedBooking });
+
+      findBooking.boarding.boarding_status = "Selesai";
+      await findBooking.save();
 
       if (!req.file) {
         res.status(206).json({ message: "Gambar tidak sesuai" });
       }
-      const saveImage = await Image.create({ imageUrl: req.file.filename });
+      const saveImage = await Image.create({
+        imageUrl: `images/${req.file.filename}`,
+      });
 
       const saveReview = await Review.create({
         name,
         position,
         rate,
         imageId: saveImage._id,
-        itemId: findItem._id,
         content: content,
       });
 
+      const findItem = await Item.findOne({ _id: decryptedBookingItem });
       findItem.reviewId.push(saveReview._id);
       await findItem.save();
 
-      res.status(200).json({ message: "Review berhasil ditambahkan" });
+      res.status(200).json({ message: "Terimakasih atas revi" });
     } catch (error) {
       res.status(404).json({ message: error.message });
     }

@@ -12,6 +12,7 @@ const Users = require("../../models/Users");
 const Porter = require("../../models/Porter");
 const fs = require("fs-extra");
 const path = require("path");
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const axios = require("axios");
 const moment = require("moment-timezone");
@@ -21,15 +22,17 @@ moment.tz.setDefault("Asia/Jakarta");
 
 const Description = require("../../models/Description");
 
-async function decrypt(encrypted, key) {
-  const decipher = crypto.createDecipheriv(
+async function encrypt(text) {
+  const key = "8315dcf89efe45c1";
+  const iv = "87e7d58225acbed903be44242158f18f";
+  const cipher = crypto.createCipheriv(
     "aes-128-cbc",
-    key,
-    Buffer.alloc(16, 0)
+    Buffer.from(key),
+    Buffer.from(iv, "hex")
   );
-  let decrypted = decipher.update(encrypted, "hex", "utf8");
-  decrypted += decipher.final("utf8");
-  return decrypted;
+  let encrypted = cipher.update(text, "utf-8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
 }
 
 async function getTimeAndDate() {
@@ -1050,14 +1053,28 @@ module.exports = {
       const findBooking = await Booking.findOne({
         invoice: status_invoice,
       });
+
+      const stringBooking = findBooking._id.toString();
+      const encryptBooking = await encrypt(stringBooking);
       // console.log(startCharacter,);
+      const stringBookingItemId = findBooking.itemId._id.toString();
+      const encryptBookingItem = await encrypt(stringBookingItemId);
+
+      const url = encryptBooking + "asdc!osd3234" + encryptBookingItem;
       if (status_booking === "start") {
         if (findBooking.imageQRStart.includes(findImage._id)) {
           findBooking.boarding.boarding_status = "check-in";
           const getTime = await getTimeAndDate();
           findBooking.boarding.boarding_start = getTime;
           await findBooking.save();
+          res.status(200).json({
+            message: "Scan QR Code Berhasil",
+            status: "start",
+          });
         } else {
+          res.status(208).json({
+            message: "Anda sudah melakukan proses check-in",
+          });
         }
       } else if (status_booking === "end") {
         if (findBooking.imageQREnd.includes(findImage._id)) {
@@ -1076,6 +1093,15 @@ module.exports = {
               (findPorterEnd.payments.status = "waiting");
             await findPorterEnd.save();
           }
+          res.status(200).json({
+            message: "Scan Qr Code Berhasil",
+            status: "end",
+            url,
+          });
+        } else {
+          res.status(208).json({
+            message: "Anda sudah melakukan check-out",
+          });
         }
       } else {
         if (!findImage) {
@@ -1085,14 +1111,14 @@ module.exports = {
       }
 
       // Return a success response with the data
-      return res.status(200).json({
-        message: "Data ditemukan",
-        invoice: status_invoice,
-        status: status_booking,
-        porter: findBooking.porterId,
-      });
+      // return res.status(200).json({
+      //   message: "Data ditemukan",
+      //   invoice: status_invoice,
+      //   status: status_booking,
+      //   porter: findBooking.porterId,
+      // });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       // Handle other errors if they occur
       res.status(500).json({ message: error.message, status_booking });
     }
