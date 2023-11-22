@@ -122,6 +122,13 @@ async function changeDate(data) {
   return formattedDate;
 }
 
+async function encrypt(text, key) {
+  const cipher = crypto.createCipheriv("aes-128-cbc", key, Buffer.alloc(16, 0));
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
+}
+
 // Function to decrypt using AES-128
 async function decrypt(encryptedText) {
   const key = "8315dcf89efe45c1"; // Replace with your actual key
