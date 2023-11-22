@@ -536,12 +536,6 @@ module.exports = {
       const duration = findMember.itemId.duration;
       const track = findMember.track;
       const invoice = findMember.invoice;
-      const invoice_start = findMember.invoice.repeat(2);
-      const invoice_end = findMember.invoice
-        .split("")
-        .reverse()
-        .join("")
-        .repeat(2);
       const memberData = findMember.memberId;
       const memberName = [];
       const memberNoId = [];
@@ -572,6 +566,7 @@ module.exports = {
             invoice
           );
           const imageUrlStart = fileName;
+
           const data_qr_start = await Image.create({
             imageUrl: imageUrlStart,
           });

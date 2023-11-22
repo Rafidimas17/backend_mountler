@@ -1044,13 +1044,13 @@ module.exports = {
       // update status based on startCharacter
       var status_booking = startCharacter ? "start" : "end";
       const status_invoice =
-        startCharacter === "start" ? invoice_start : invoice_end;
+        status_booking === "start" ? invoice_start : invoice_end;
       const findImage = await Image.findOne({ imageUrl: image_url });
 
       const findBooking = await Booking.findOne({
         invoice: status_invoice,
       });
-
+      // console.log(startCharacter,);
       if (status_booking === "start") {
         if (findBooking.imageQRStart.includes(findImage._id)) {
           findBooking.boarding.boarding_status = "check-in";
@@ -1094,7 +1094,7 @@ module.exports = {
     } catch (error) {
       console.log(error);
       // Handle other errors if they occur
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message, status_booking });
     }
   },
 
