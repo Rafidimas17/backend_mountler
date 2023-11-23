@@ -4,88 +4,118 @@ const { ObjectId } = mongoose.Schema;
 const itemSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   price: {
     type: Number,
-   required:true
+    required: true,
   },
   country: {
     type: String,
-    default: 'Indonesia'
+    default: "Indonesia",
   },
-  highest:{
-    type:Number,
-    required:true
+  highest: {
+    type: Number,
+    required: true,
   },
-  
+
   isPopular: {
     type: Boolean,
-    default: false
+    default: false,
   },
   description: {
     type: String,
-    required:true
+    required: true,
   },
   unit: {
     type: String,
-    default: 'day'
+    default: "day",
   },
   sumBooking: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  categoryId: [{
+  categoryId: [
+    {
+      type: ObjectId,
+      ref: "Category",
+    },
+  ],
+  imageId: [
+    {
+      type: ObjectId,
+      ref: "Image",
+    },
+  ],
+  featureId: [
+    {
+      type: ObjectId,
+      ref: "Feature",
+    },
+  ],
+  activityId: [
+    {
+      type: ObjectId,
+      ref: "Activity",
+    },
+  ],
+  usersId: {
     type: ObjectId,
-    ref: 'Category'
-  }],
-  imageId: [{
-    type: ObjectId,
-    ref: 'Image'
-  }],
-  featureId: [{
-    type: ObjectId,
-    ref: 'Feature'
-  }],
-  activityId: [{
-    type: ObjectId,
-    ref: 'Activity'
-  }],
-  usersId:{
-    type:ObjectId,
-    ref:"Users"
+    ref: "Users",
   },
-  trackId: [{
-    type: ObjectId,
-    ref: 'Track'
-  }],
-  memberId: [{
-    type: ObjectId,
-    ref: 'Member'
-  }],
-  detailId: [{
-    type: ObjectId,
-    ref: 'DetailItem'
-  }],
-  bankId:[{
-    type:ObjectId,
-    ref:"Bank"
-  }]
-})
-itemSchema.pre('findOneAndDelete', async function (next) {
+  trackId: [
+    {
+      type: ObjectId,
+      ref: "Track",
+    },
+  ],
+  memberId: [
+    {
+      type: ObjectId,
+      ref: "Member",
+    },
+  ],
+  porterId: [
+    {
+      type: ObjectId,
+      ref: "Porter",
+    },
+  ],
+  detailId: [
+    {
+      type: ObjectId,
+      ref: "DetailItem",
+    },
+  ],
+  reviewId: [
+    {
+      type: ObjectId,
+      ref: "Review",
+    },
+  ],
+  bankId: [
+    {
+      type: ObjectId,
+      ref: "Bank",
+    },
+  ],
+});
+itemSchema.pre("findOneAndDelete", async function (next) {
   const item = this;
 
   try {
     // Hapus ID dari DetailItem
-    await mongoose.model('DetailItem').updateMany(
-      { itemId: { $in: item._id } },
-      { $pull: { itemId: item._id } }
-    );
-    
+    await mongoose
+      .model("DetailItem")
+      .updateMany(
+        { itemId: { $in: item._id } },
+        { $pull: { itemId: item._id } }
+      );
+
     next();
   } catch (error) {
     next(error);
   }
 });
 
-module.exports = mongoose.model('Item', itemSchema)
+module.exports = mongoose.model("Item", itemSchema);

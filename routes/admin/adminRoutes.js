@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const adminController = require("../../controllers/admin/adminController");
 const { uploadSingle, uploadMultiple } = require("../../middleware/multer");
-const auth = require("../../middleware/auth");
+// const auth = require("../../middleware/auth");
 
 router.get("/signin", adminController.viewSignin);
 router.post("/signin", adminController.actionSignin);
-router.use(auth);
+// router.use(auth);
 router.get("/logout", adminController.actionLogout);
 router.get("/dashboard", adminController.viewDashboard);
 //endpoint pengelola
@@ -62,6 +62,12 @@ router.get(
   adminController.viewDetailStatus
 );
 router.post("/status/scan-qr", adminController.scanQrCode);
+
+// endpoint porter
+router.post("/porter", uploadSingle, adminController.addPorter);
+router.get("/porter", adminController.viewPorter);
+router.delete("/porter/:id", adminController.deletePorter);
+router.put("/porter", uploadSingle, adminController.editPorter);
 
 // router.get("/example", adminController.viewExample);
 module.exports = router;

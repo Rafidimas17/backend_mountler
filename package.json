@@ -26,6 +26,7 @@
     "express": "~4.16.1",
     "express-session": "^1.17.3",
     "express-validator": "^7.0.1",
+    "faker": "^6.6.6",
     "fs-extra": "^11.1.1",
     "html5-qrcode": "^2.3.8",
     "http-errors": "~1.6.3",
