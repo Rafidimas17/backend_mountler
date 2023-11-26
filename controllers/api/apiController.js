@@ -771,7 +771,7 @@ module.exports = {
       findItem.reviewId.push(saveReview._id);
       await findItem.save();
 
-      res.status(200).json({ message: "Terimakasih atas revi" });
+      res.status(200).json({ message: "Review berhasil" });
     } catch (error) {
       res.status(404).json({ message: error.message });
     }
