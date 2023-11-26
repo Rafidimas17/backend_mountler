@@ -83,7 +83,7 @@ module.exports = {
                                         <tbody>
                                           <tr>
                                             <td style="line-height: 24px; font-size: 16px; margin: 0;" align="left">
-                                              <img class="w-24" src="https://assets.bootstrapemail.com/logos/light/square.png" style="height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; width: 96px; border-style: none; border-width: 0;" width="96">
+                                              <img class="w-24" src="https://www.mountler.com/images/logo.png" style="height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; width: 96px; border-style: none; border-width: 0;" width="96">
                                             </td>
                                           </tr>
                                         </tbody>
@@ -179,7 +179,7 @@ module.exports = {
       kirimEmail(templateEmail);
 
       return res.status(200).json({
-        message: "Berhasil diakses",
+        message: `Email aktivasi telah terkirim ke ${email} `,
       });
     } catch (error) {
       return res.status(500).json({
