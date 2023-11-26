@@ -275,7 +275,7 @@ module.exports = {
       // Add function to get current weather
 
       const currentDateTime = getCurrentDateTime();
-      const apiKey = "3Q8NW6TFHK4YJHLTLWRUCSQR6";
+      const apiKey = "6PNHJCVFR9UXJVHM9U24MUU3F";
       const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${address}/${await currentDateTime}?key=${apiKey}`;
       axios
         .get(url)
