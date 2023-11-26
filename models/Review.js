@@ -11,9 +11,9 @@ const reviewSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  imageId: {
-    type: ObjectId,
-    ref: "Image",
+  imageUrl: {
+    type: String,
+    required: true,
   },
   rate: {
     type: Number,
