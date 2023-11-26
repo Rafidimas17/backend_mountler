@@ -256,22 +256,13 @@ module.exports = {
         })
         .populate({ path: "trackId", select: "_id name city province" })
         .populate({
-          path: "bankId",
-          select: "_id name nomorRekening nameBank",
+          path: "reviewId",
+          select: "_id name rate content imageUrl",
         });
 
       // const bank = await Bank.find();
       const address = item.trackId[0].city;
-      const testimonial = {
-        _id: "asd1293uasdads1",
-        imageUrl: "images/testimonial1.jpg",
-        name: "Happy Family",
-        rate: 4.55,
-        content:
-          "What a great trip with my family and I should try again next time soon ...",
-        familyName: "Angga",
-        familyOccupation: "Product Designer",
-      };
+
       // Add function to get current weather
 
       const currentDateTime = getCurrentDateTime();
@@ -295,7 +286,6 @@ module.exports = {
 
                 const data = {
                   ...item._doc,
-                  testimonial,
                   currentWeather,
                 };
 
@@ -768,15 +758,12 @@ module.exports = {
       if (!req.file) {
         res.status(206).json({ message: "Gambar tidak sesuai" });
       }
-      const saveImage = await Image.create({
-        imageUrl: `images/${req.file.filename}`,
-      });
 
       const saveReview = await Review.create({
         name,
         position,
         rate,
-        imageId: saveImage._id,
+        imageUrl: `images/${req.file.filename}`,
         content: content,
       });
 

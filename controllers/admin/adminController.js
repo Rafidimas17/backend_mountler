@@ -1068,7 +1068,7 @@ module.exports = {
           findBooking.boarding.boarding_start = getTime;
           await findBooking.save();
           res.status(200).json({
-            message: "Scan QR Code Berhasil",
+            message: "Check-in Berhasil",
             status: "start",
           });
         } else {
@@ -1094,7 +1094,7 @@ module.exports = {
             await findPorterEnd.save();
           }
           res.status(200).json({
-            message: "Scan Qr Code Berhasil",
+            message: "Check-out Berhasil",
             status: "end",
             url,
           });
