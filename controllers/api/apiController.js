@@ -273,9 +273,9 @@ module.exports = {
         .then((response) => {
           const weatherData = response.data;
 
-          if (weatherData && weatherData.currentConditions) {
-            const weatherTempF = weatherData.currentConditions.temp;
-            const condition = weatherData.currentConditions.conditions;
+          if (weatherData) {
+            const weatherTempF = weatherData.days[0].temp;
+            const condition = weatherData.days[0].conditions;
 
             return convertCelcius(weatherTempF)
               .then((weatherTemperature) => {
