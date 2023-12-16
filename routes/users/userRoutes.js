@@ -8,17 +8,18 @@ const {
   forgotPassword,
   resetPassword,
 } = require("../../controllers/users/userController");
+const authorization = require("../../middleware/authorization");
 const {
   runValidation,
   validationDaftar,
   validationLogin,
 } = require("../../validator/validator");
 const middleware = require("../../middleware/middleware");
-app.post("/signup", validationDaftar, runValidation, DaftarUser);
-app.post("/login", LoginUser, validationLogin, runValidation);
-app.get("/get-user", getSingleUser, middleware);
-app.put("/forgot-password", forgotPassword);
-app.put("/reset-password", resetPassword);
-app.get("/verify-email/:tokenAktif/", verifyEmail);
+app.post("/signup", authorization, validationDaftar, runValidation, DaftarUser);
+app.post("/login", authorization, LoginUser, validationLogin, runValidation);
+app.get("/get-user", authorization, getSingleUser, middleware);
+app.put("/forgot-password", authorization, forgotPassword);
+app.put("/reset-password", authorization, resetPassword);
+app.get("/verify-email/:tokenAktif/", authorization, verifyEmail);
 
 module.exports = app;

@@ -13,13 +13,13 @@ module.exports = {
       const emailFind = await Users.findOne({ email: email });
       if (usernameFind) {
         return res.status(402).json({
-          message: "Username Telah Tersedia",
+          message: "Username telah tersedia",
         });
       }
 
       if (emailFind) {
         return res.status(404).json({
-          message: "Email Telah Tersedia",
+          message: "Email telah tersedia",
         });
       }
 
@@ -188,54 +188,68 @@ module.exports = {
     }
   },
   LoginUser: async (req, res) => {
-    const { username, password } = req.body;
+    try {
+      const { username, password } = req.body;
 
-    const userUsername = await Users.findOne({
-      $or: [{ username: username }, { email: username }],
-    });
+      // Check if username is empty
+      if (!username) {
+        return res
+          .status(400)
+          .json({ message: "Username atau email tidak boleh kosong" });
+      }
 
-    if (userUsername) {
-      const passwordUser = await bcrypt.compare(
-        password,
-        userUsername.password
-      );
-      if (passwordUser) {
-        const dataUser = {
-          id: userUsername._id,
-          username: userUsername.username,
+      // Find user by username or email
+      const user = await Users.findOne({
+        $or: [{ username: username }, { email: username }],
+      });
+
+      // Check if user exists
+      if (!user) {
+        return res
+          .status(400)
+          .json({ message: "Username atau email tidak tersedia" });
+      }
+
+      // Compare passwords
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (passwordMatch) {
+        const userData = {
+          id: user._id,
+          username: user.username,
         };
 
-        if (
-          userUsername.isVerified == true &&
-          userUsername.tokenAktivasi == null
-        ) {
+        // Check if user is verified and token is null
+        if (user.isVerified && user.tokenAktivasi === null) {
           const token = await jsonwebtoken.sign(
-            dataUser,
-            process.env.JSWT_SECRET,
-            { expiresIn: "1d" }
+            userData,
+            process.env.JWT_SECRET,
+            {
+              expiresIn: "1d",
+            }
           );
+
           return res.status(200).json({
             message: "Berhasil",
             token: token,
           });
         } else {
-          return res.status(402).json({
+          return res.status(200).json({
             message: "Email belum terverifikasi",
           });
         }
       } else {
-        return res.status(404).json({
+        return res.status(200).json({
           status: false,
-          message: "Periksa kembali password anda",
+          message: "Password tidak sesuai",
         });
       }
-    } else {
-      return res.status(401).json({
-        status: false,
-        message: "username atau email tidak tersedia ",
-      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   },
+
   getSingleUser: async (req, res) => {
     const { id } = req.query;
     try {
