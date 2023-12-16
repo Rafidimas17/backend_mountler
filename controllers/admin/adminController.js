@@ -9,12 +9,46 @@ const NodeWebcam = require("node-webcam");
 const Booking = require("../../models/Booking");
 const Member = require("../../models/Member");
 const Users = require("../../models/Users");
+const Porter = require("../../models/Porter");
 const fs = require("fs-extra");
 const path = require("path");
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const axios = require("axios");
+const moment = require("moment-timezone");
+
+// Atur zona waktu ke GMT+7 (Waktu Indonesia Barat)
+moment.tz.setDefault("Asia/Jakarta");
 
 const Description = require("../../models/Description");
+
+async function encrypt(text) {
+  const key = "8315dcf89efe45c1";
+  const iv = "87e7d58225acbed903be44242158f18f";
+  const cipher = crypto.createCipheriv(
+    "aes-128-cbc",
+    Buffer.from(key),
+    Buffer.from(iv, "hex")
+  );
+  let encrypted = cipher.update(text, "utf-8", "hex");
+  encrypted += cipher.final("hex");
+  return encrypted;
+}
+
+async function getTimeAndDate() {
+  const originalTimestamp = moment.tz("Asia/Jakarta"); // Your original timestamp
+
+  const originalDate = new Date(originalTimestamp);
+
+  originalDate.setHours(originalDate.getHours() + 7);
+
+  if (originalDate.getHours() >= 24) {
+    originalDate.setHours(originalDate.getHours() - 24);
+  }
+
+  const modifiedTimestamp = originalDate.toISOString();
+  return modifiedTimestamp;
+}
 
 module.exports = {
   viewSignin: async (req, res) => {
@@ -993,46 +1027,206 @@ module.exports = {
     // Item.find({_id:user.itemId[i]}) }
   },
   scanQrCode: async (req, res) => {
-    const { id } = req.body;
-    const idScan = id.substring(0, 24);
+    const { imageUrl } = req.body;
 
     try {
-      // Cari data booking berdasarkan _id
-      const booking = await Booking.findOne({ _id: idScan });
-      const user = await Users.findOne({ _id: req.session.user.id });
+      const data_invoice_start = imageUrl.match(/start_([^_]+)_/);
+      const invoice_start = data_invoice_start ? data_invoice_start[1] : null;
 
-      if (!user) {
-        return res.status(401).json({ error: "Pengguna tidak ditemukan" });
-      }
-      // Periksa apakah booking ditemukan
-      if (!booking) {
-        // Jika tidak ditemukan, kembalikan respons dengan pesan kesalahan
-        return res.status(404).json({ error: "Booking tidak ditemukan" });
-      }
+      const data_invoice_end = imageUrl.match(/end_([^_]+)_/); // Fix the regular expression here
+      const invoice_end = data_invoice_end ? data_invoice_end[1] : null;
 
-      // Periksa apakah idScan sama dengan _id dalam payload
-      if (idScan === booking._id.toString()) {
-        // Jika sama, ubah status menjadi "Mendaki"
-        booking.boarding = "Mendaki";
+      // Extracting "/images/qr-code/john_start_MT6XNZKY_f70e96c8bf.png"
+      const data_image_url = imageUrl.match(/\/images\/qr-code\/([^/]+)$/);
+      const image_url = data_image_url ? data_image_url[0] : null;
 
-        // Simpan perubahan
-        await booking.save();
+      const data_status = imageUrl.match(/\/([^_]+)_start_([^_]+)_/);
+      const status = data_status ? data_status[2] : null;
+      const startCharacter = status ? status.charAt(0) : null;
 
-        // Kembalikan respons dengan data yang telah diubah
-        return res.status(200).json({
-          message: "Status berhasil diubah menjadi Mendaki",
-          updatedBooking: booking,
-        });
+      // update status based on startCharacter
+      var status_booking = startCharacter ? "start" : "end";
+      const status_invoice =
+        status_booking === "start" ? invoice_start : invoice_end;
+      const findImage = await Image.findOne({ imageUrl: image_url });
+
+      const findBooking = await Booking.findOne({
+        invoice: status_invoice,
+      });
+
+      const stringBooking = findBooking._id.toString();
+      const encryptBooking = await encrypt(stringBooking);
+      // console.log(startCharacter,);
+      const stringBookingItemId = findBooking.itemId._id.toString();
+      const encryptBookingItem = await encrypt(stringBookingItemId);
+
+      const url = encryptBooking + "asdc!osd3234" + encryptBookingItem;
+      if (status_booking === "start") {
+        if (findBooking.imageQRStart.includes(findImage._id)) {
+          findBooking.boarding.boarding_status = "check-in";
+          const getTime = await getTimeAndDate();
+          findBooking.boarding.boarding_start = getTime;
+          await findBooking.save();
+          res.status(200).json({
+            message: "Check-in Berhasil",
+            status: "start",
+          });
+        } else {
+          res.status(208).json({
+            message: "Anda sudah melakukan proses check-in",
+          });
+        }
+      } else if (status_booking === "end") {
+        if (findBooking.imageQREnd.includes(findImage._id)) {
+          findBooking.boarding.boarding_status = "check-out";
+          const getTime = await getTimeAndDate();
+          findBooking.boarding.boarding_end = getTime;
+          await findBooking.save();
+
+          for (let i = 0; i < findBooking.porterId.length; i++) {
+            const findPorterEnd = await Porter.findOne({
+              _id: findBooking.porterId[i],
+            });
+            findPorterEnd.status = "free";
+            findPorterEnd.startBooking = null;
+            (findPorterEnd.endBooking = null),
+              (findPorterEnd.payments.status = "waiting");
+            await findPorterEnd.save();
+          }
+          res.status(200).json({
+            message: "Check-out Berhasil",
+            status: "end",
+            url,
+          });
+        } else {
+          res.status(208).json({
+            message: "Anda sudah melakukan check-out",
+          });
+        }
       } else {
-        // Jika idScan tidak sama dengan _id, kembalikan respons dengan pesan kesalahan
-        return res.status(400).json({ error: "IdScan tidak cocok dengan _id" });
+        if (!findImage) {
+          // If the image is not found, return a 404 response with an error message
+          return res.status(404).json({ message: "Item tidak ditemukan" });
+        }
       }
+
+      // Return a success response with the data
+      // return res.status(200).json({
+      //   message: "Data ditemukan",
+      //   invoice: status_invoice,
+      //   status: status_booking,
+      //   porter: findBooking.porterId,
+      // });
     } catch (error) {
-      console.log(error);
-      // Tangani kesalahan lain jika terjadi
-      res
-        .status(500)
-        .json({ error: "Terjadi kesalahan dalam pengolahan data", idScan });
+      // console.log(error);
+      // Handle other errors if they occur
+      res.status(500).json({ message: error.message, status_booking });
+    }
+  },
+
+  viewPorter: async (req, res) => {
+    try {
+      const user = await Users.findOne({ _id: req.session.user.id });
+      const item = await Item.find({ _id: user.itemId });
+      const porter = await Porter.find({ itemId: item });
+      // console.log(bank); console.log(item)
+      const alertMessage = req.flash("alertMessage");
+      const alertStatus = req.flash("alertStatus");
+      const alert = {
+        message: alertMessage,
+        status: alertStatus,
+      };
+      res.render("admin/porter/view_porter", {
+        title: "Cakrawala | Porter",
+        alert,
+        porter,
+        user,
+      });
+    } catch (error) {
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
+    }
+  },
+  addPorter: async (req, res) => {
+    const { name, age, no_hp } = req.body;
+    try {
+      const user = await Users.findOne({ _id: req.session.user.id });
+      // const userId = req.session.user.id;
+      const item = await Item.findOne({ _id: user.itemId });
+
+      if (!req.file) {
+        res.status(204).json({
+          message: "File tidak ditemukan",
+        });
+      }
+      const savePorter = await Porter.create({
+        name: name,
+        age: age,
+        imageUrl: `images/${req.file.filename}`,
+        itemId: item,
+        noHandphone: no_hp,
+      });
+      const findItem = await Item.findOne({ _id: savePorter.itemId });
+      findItem.porterId.push(savePorter._id);
+      await findItem.save();
+      req.flash("alertMessage", "Success Add Porter");
+      req.flash("alertStatus", "success");
+      res.redirect("/admin/porter");
+    } catch (error) {
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
+    }
+  },
+  deletePorter: async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Porter.deleteOne({ _id: id });
+      await Item.updateMany(
+        {
+          porterId: id,
+        },
+        {
+          $pull: {
+            porterId: id,
+          },
+        }
+      );
+      req.flash("alertMessage", "Success Delete Porter");
+      req.flash("alertStatus", "success");
+      res.redirect("/admin/porter");
+    } catch (error) {
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
+    }
+  },
+  editPorter: async (req, res) => {
+    const { id, name, age, noHandphone } = req.body;
+    try {
+      const porter = await Porter.findOne({ _id: id });
+      console.log(porter);
+      if (!req.file) {
+        res.status(203).json({
+          message: "Image not found",
+        });
+      }
+      await fs.unlink(path.join(__dirname, `public/${porter.imageUrl}`));
+
+      porter.name = name;
+      porter.age = age;
+      porter.noHandphone = noHandphone;
+      porter.imageUrl = `images/${req.file.filename}`;
+
+      await porter.save();
+      req.flash("alertMessage", "Success Update Porter");
+      req.flash("alertStatus", "success");
+      res.redirect("/admin/porter");
+    } catch (error) {
+      req.flash("alertMessage", `${error.message}`);
+      req.flash("alertStatus", "danger");
+      res.redirect("/admin/porter");
     }
   },
 };

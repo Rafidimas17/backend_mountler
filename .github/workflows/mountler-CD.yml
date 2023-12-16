@@ -6,7 +6,7 @@ name: CD
 # events but only for the master branch
 on:
   push:
-    branches: [master]
+    branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,11 +25,18 @@ jobs:
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.PRIVATE_KEY }}
+          key: ${{ secrets.SECRET_KEY }}
           port: 22
           script: |
-            cd ~/app/node-cicd-sample
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+            export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+            command -v nvm
+            nvm install 18
+            cd ~/app/backend_mountler
             git pull origin master
             git status
             npm install --only=prod
-            pm2 restart app-sample
+            pm2 restart mountler-server
+          env:
+            PAT:${{ secrets.PAT }}

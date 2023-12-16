@@ -83,7 +83,7 @@ module.exports = {
                                         <tbody>
                                           <tr>
                                             <td style="line-height: 24px; font-size: 16px; margin: 0;" align="left">
-                                              <img class="w-24" src="https://assets.bootstrapemail.com/logos/light/square.png" style="height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; width: 96px; border-style: none; border-width: 0;" width="96">
+                                              <img class="w-24" src="https://www.mountler.com/images/logo.png" style="height: auto; line-height: 100%; outline: none; text-decoration: none; display: block; width: 96px; border-style: none; border-width: 0;" width="96">
                                             </td>
                                           </tr>
                                         </tbody>
@@ -102,7 +102,7 @@ module.exports = {
                                           <tr>
                                             <td style="line-height: 24px; font-size: 16px; width: 100%; margin: 0; padding: 40px;" align="left" bgcolor="#ffffff">
                                               <h1 class="h3 fw-700" style="padding-top: 0; padding-bottom: 0; font-weight: 700 !important; vertical-align: baseline; font-size: 28px; line-height: 33.6px; margin: 0;" align="center">
-                                                Atur ulang kata sandi 
+                                                Aktivasi akun 
                                               </h1>
                                               <table class="s-4 w-full" role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%;" width="100%">
                                                 <tbody>
@@ -131,14 +131,14 @@ module.exports = {
                                               <table class="btn btn-red-300 rounded-full fw-800 text-5xl py-4 ax-center  w-full w-lg-80" role="presentation" align="center" border="0" cellpadding="0" cellspacing="0" style="border-radius: 9999px; border-collapse: separate !important; width: 320px; font-size: 48px; line-height: 57.6px; font-weight: 800 !important; margin: 0 auto;" width="320">
                                                 <tbody>
                                                   <tr>
-                                                    <td style="line-height: 24px; font-size: 16px; border-radius: 9999px; width: 320px; font-weight: 800 !important; margin: 0;" align="center" bgcolor="#cd2013" width="320">
-                                                      <a href=${process.env.CLIENT_URL}/verify-email/${tokenAktivasi} style="color: #FFFF; font-size: 16px; font-family: Poppins; text-decoration: none; border-radius: 9999px; line-height: 20px; display: block; font-weight: 800 !important; white-space: nowrap; background-color: #cd2013; padding: 16px 12px; border: 1px solid #cd2013;">Atur ulang</a>
+                                                    <td style="line-height: 24px; font-size: 16px; border-radius: 9999px; width: 320px; font-weight: 800 !important; margin: 0;" align="center" bgcolor="#00ace3" width="320">
+                                                      <a href=${process.env.CLIENT_URL}/verify-email/${tokenAktivasi} style="color: #FFFF; font-size: 16px; font-family: Poppins; text-decoration: none; border-radius: 9999px; line-height: 20px; display: block; font-weight: 800 !important; white-space: nowrap; background-color: #00ace3; padding: 16px 12px; border: 1px solid #00ace3;">Aktivasi Akun</a>
                                                     </td>
                                                   </tr>
                                                 </tbody>
                                               </table>
                                               <p class="" style="line-height: 24px; font-size: 16px; width: 100%; margin: 0; margin-top:10px;" align="center">
-                                                      Jika kamu merasa tidak mengajukan pengaturan ulang kata sandi, kamu bisa mengabaikan email ini. Kata sandimu tidak akan berubah
+                                                      Aktivasi akun kamu dan mari kita mulai petualangan seru pendakian kamu. 
                                                       </p>
                                                       <p style="line-height: 20px; font-size: 16px; width: 100%; margin: 0;" align="center"><strong>Cakrawala Team</strong></p>
                                             </td>
@@ -179,7 +179,7 @@ module.exports = {
       kirimEmail(templateEmail);
 
       return res.status(200).json({
-        message: "Berhasil diakses",
+        message: `Email aktivasi telah terkirim ke ${email} `,
       });
     } catch (error) {
       return res.status(500).json({
@@ -211,7 +211,8 @@ module.exports = {
         ) {
           const token = await jsonwebtoken.sign(
             dataUser,
-            process.env.JSWT_SECRET, { expiresIn: '1d' }
+            process.env.JSWT_SECRET,
+            { expiresIn: "1d" }
           );
           return res.status(200).json({
             message: "Berhasil",

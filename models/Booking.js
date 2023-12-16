@@ -74,9 +74,37 @@ const bookingSchema = new mongoose.Schema({
     type: ObjectId,
     ref: "Bank",
   },
+  porterId: [
+    {
+      type: ObjectId,
+      ref: "Porter",
+    },
+  ],
+  imageQRStart: [
+    {
+      type: ObjectId,
+      ref: "Image",
+    },
+  ],
+  imageQREnd: [
+    {
+      type: ObjectId,
+      ref: "Image",
+    },
+  ],
   boarding: {
-    type: String,
-    default: "Registrasi",
+    boarding_status: {
+      type: String,
+      default: null,
+    },
+    boarding_start: {
+      type: Date,
+      default: null,
+    },
+    boarding_end: {
+      type: Date,
+      default: null,
+    },
   },
   payments: {
     payment_status: {
@@ -85,10 +113,6 @@ const bookingSchema = new mongoose.Schema({
     },
     midtrans_url: {
       type: String,
-    },
-    midtrans_booking_code: {
-      type: String,
-      default: null,
     },
     status: {
       type: String,

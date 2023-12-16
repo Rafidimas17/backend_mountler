@@ -56,11 +56,19 @@ app.use(
 );
 app.use(cors());
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const allowedOrigins = ["http://localhost:3000", "http://mountler.com"];
+  const origin = req.headers.origin;
+
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
   res.setHeader("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
   next();
 });
+
 app.use("/", indexRouter);
 // app.use('/users', usersRouter);
 app.use("/admin", adminRouter);

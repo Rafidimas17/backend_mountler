@@ -19,38 +19,18 @@ seeder.connect(
       "./models/Item",
       "./models/Equipment",
       "./models/Feature",
+      "./models/QrCode",
       "./models/Activity",
       "./models/Member",
       "./models/Image",
       "./models/Member",
       "./models/Booking",
       "./models/Users",
-
+      "./models/Porter",
       "./models/Track", // Add the Track model file path here
     ]);
 
     // Clear specified collections
-    seeder.clearModels(
-      [
-        "Category",
-        "Bank",
-        "Item",
-        "Member",
-        "Equipment",
-        "Item",
-        "Feature",
-        "Image",
-        "Booking",
-        "Users",
-        "Track",
-      ],
-      function () {
-        // Callback to populate DB once collections have been cleared
-        seeder.populateModels(data, function () {
-          seeder.disconnect();
-        });
-      }
-    );
   }
 );
 
@@ -107,7 +87,62 @@ var data = [
     model: "Track",
     documents: [],
   },
-
+  {
+    models: "Porter",
+    documents: [
+      {
+        _id: mongoose.Types.ObjectId("5dd8f07a5a8e7647a41005b1"),
+        payments: {
+          status: "waiting",
+          payment_url: null,
+        },
+        status: "free",
+        startBooking: null,
+        endBooking: null,
+        name: "John Doe",
+        age: 36,
+        imageUrl: "images/1700325304638.jpg",
+        itemId: mongoose.Types.ObjectId("651e1dfebf0fc942e41ba0bd"),
+        noHandphone: 62756354615176,
+        price: 10000,
+        bookingId: [],
+      },
+      {
+        _id: mongoose.Types.ObjectId("5dd8f07a5a8e7647a41005b2"),
+        payments: {
+          status: "waiting",
+          payment_url: null,
+        },
+        status: "free",
+        startBooking: null,
+        endBooking: null,
+        name: "Darmawan",
+        age: 36,
+        imageUrl: "images/1700325304638.jpg",
+        itemId: mongoose.Types.ObjectId("651e1dfebf0fc942e41ba0bd"),
+        noHandphone: 62756354615176,
+        price: 10000,
+        bookingId: [],
+      },
+      {
+        _id: mongoose.Types.ObjectId("5dd8f07a5a8e7647a41005b3"),
+        payments: {
+          status: "waiting",
+          payment_url: null,
+        },
+        status: "free",
+        startBooking: null,
+        endBooking: null,
+        name: "Wahyu",
+        age: 36,
+        imageUrl: "images/1700325304638.jpg",
+        itemId: mongoose.Types.ObjectId("651e1dfebf0fc942e41ba0bd"),
+        noHandphone: 62756354615176,
+        price: 10000,
+        bookingId: [],
+      },
+    ],
+  },
   {
     model: "Users",
     documents: [

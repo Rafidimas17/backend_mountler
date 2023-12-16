@@ -12,8 +12,14 @@ router.post(
   uploadSingle,
   apiController.bookingPage
 );
-router.get("/ticket-show/:id", apiController.ticketShow);
+router.get("/ticket-show/:id", uploadSingle, apiController.ticketShow);
+router.get("/view-profile/:id", apiController.viewProfile);
 router.get("/dashboard/:id", apiController.viewDashboard);
 router.get("/payment-success", testController.getNotification);
 router.post("/payment-success", testController.getNotification);
+
+router.get("/list-porter/:invoice", apiController.getPorter);
+router.post("/order-porter", apiController.orderPorter);
+router.post("/add-review", uploadSingle, apiController.addReview);
+
 module.exports = router;

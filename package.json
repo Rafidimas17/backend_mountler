@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
+    "start": "env-cmd -f .env.production node ./bin/www",
+    "dev": "env-cmd -f .env.development.local nodemon ./bin/www",
     "test": "mocha --timeout 5000000 --exit"
   },
   "dependencies": {
@@ -19,11 +19,14 @@
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "debug": "~2.6.9",
-    "dotenv": "^16.1.4",
+    "dotenv": "^16.3.1",
     "ejs": "~2.6.1",
+    "elliptic": "^6.5.4",
+    "env-cmd": "^10.1.0",
     "express": "~4.16.1",
     "express-session": "^1.17.3",
     "express-validator": "^7.0.1",
+    "faker": "^6.6.6",
     "fs-extra": "^11.1.1",
     "html5-qrcode": "^2.3.8",
     "http-errors": "~1.6.3",
@@ -44,10 +47,12 @@
     "node-webcam": "^0.8.2",
     "nodemailer": "^6.9.3",
     "openweather-api-node": "^3.1.1",
+    "qrcode": "^1.5.3",
     "request": "^2.88.2",
     "startbootstrap-sb-admin-2": "^4.1.4",
     "supertest": "^6.3.3",
     "sweetalert2": "^11.7.28",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "zlib": "^1.0.5"
   }
 }
