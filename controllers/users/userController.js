@@ -198,7 +198,6 @@ module.exports = {
           .json({ message: "Username atau email tidak boleh kosong" });
       }
 
-      // Find user by username or email
       const user = await Users.findOne({
         $or: [{ username: username }, { email: username }],
       });
@@ -220,15 +219,12 @@ module.exports = {
         };
 
         // Check if user is verified and token is null
-        if (user.isVerified && user.tokenAktivasi === null) {
+        if (user.isVerified == true && user.tokenAktivasi == null) {
           const token = await jsonwebtoken.sign(
             userData,
-            process.env.JWT_SECRET,
-            {
-              expiresIn: "1d",
-            }
+            process.env.JSWT_SECRET,
+            { expiresIn: "1d" }
           );
-
           return res.status(200).json({
             message: "Berhasil",
             token: token,

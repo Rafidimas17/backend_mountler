@@ -53,6 +53,7 @@
     "startbootstrap-sb-admin-2": "^4.1.4",
     "supertest": "^6.3.3",
     "sweetalert2": "^11.7.28",
+    "topsis": "^1.3.2",
     "util": "^0.12.5",
     "zlib": "^1.0.5"
   }

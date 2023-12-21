@@ -11,11 +11,70 @@ const axios = require("axios");
 const crypto = require("crypto");
 const qrcode = require("qrcode");
 const fs = require("fs").promises;
+
 const path = require("path");
 const Profile = require("../../models/Profile");
 const Track = require("../../models/Track");
 const Review = require("../../models/Review");
 const Content = require("../../models/Content");
+
+
+
+
+
+async function topsis(data, weights) {
+  // Normalisasi matriks keputusan
+  const matrix = data.map(item => Object.values(item).slice(1)); // Mengabaikan property 'name'
+
+  const normalizedMatrix = matrix.map(row =>
+    row.map((value, index) => value / Math.sqrt(matrix.reduce((acc, row) => acc + row[index] ** 2, 0)))
+  );
+
+  // Pembobotan matriks normalisasi
+  const weightedMatrix = normalizedMatrix.map(row =>
+    row.map((value, index) => value * weights[index])
+  );
+
+  // Menentukan solusi ideal positif dan negatif
+  const idealPositive = weightedMatrix.reduce((acc, row) =>
+    acc.map((value, index) => Math.max(value, row[index]))
+  );
+
+  const idealNegative = weightedMatrix.reduce((acc, row) =>
+    acc.map((value, index) => Math.min(value, row[index]))
+  );
+
+  // Menghitung jarak Euclidean dari setiap alternatif ke solusi ideal positif dan negatif
+  const distancePositive = weightedMatrix.map(row =>
+    Math.sqrt(row.reduce((acc, value, index) => acc + (value - idealPositive[index]) ** 2, 0))
+  );
+
+  const distanceNegative = weightedMatrix.map(row =>
+    Math.sqrt(row.reduce((acc, value, index) => acc + (value - idealNegative[index]) ** 2, 0))
+  );
+
+  // Menghitung skor kedekatan relatif (closeness)
+  const closeness = distanceNegative.map((distanceNeg, index) =>
+    distanceNeg / (distancePositive[index] + distanceNeg)
+  );
+
+  // Menambahkan skor kedekatan relatif ke data
+  const rankedData = data.map((item, index) => ({
+    ...item,
+    closeness: closeness[index]
+  }));
+
+  // Merangking alternatif berdasarkan skor kedekatan relatif
+  const rankings = closeness
+    .map((value, index) => ({ value, index }))
+    .sort((a, b) => b.value - a.value)
+    .map((item, index) => ({
+      ...rankedData[item.index],
+      ranking: index + 1
+    })); // Mengurutkan dari peringkat tertinggi
+
+  return { rankings, idealPositive, idealNegative };
+}
 
 async function getCurrentDateTime() {
   const currentDate = new Date();
@@ -132,7 +191,7 @@ async function encrypt(text, key) {
 // Function to decrypt using AES-128
 async function decrypt(encryptedText) {
   const key = "8315dcf89efe45c1"; // Replace with your actual key
-  const iv = Buffer.from("87e7d58225acbed903be44242158f18f", "hex"); // Replace with your actual IV
+  const iv = Buffer.from("87e7d58225acbe90be44242158f18f", "hex"); // Replace with your actual IV
   const decipher = crypto.createDecipheriv("aes-128-cbc", Buffer.from(key), iv);
   let decrypted = decipher.update(encryptedText, "hex", "utf-8");
   decrypted += decipher.final("utf-8");
@@ -776,4 +835,45 @@ module.exports = {
       res.status(404).json({ message: error.message });
     }
   },
+  fuzzyTopsis:async (req,res)=>{
+    const dataItem=await Item.find().select('title price highest')
+
+
+    const dataJarak = [
+      { jarak: 15},
+      { jarak: 10},
+      { jarak: 12 },
+      { jarak: 7 },
+      { jarak: 8.5 },
+      { jarak: 5 },
+      { jarak: 9 },
+      { jarak: 13 },
+    ];
+
+    const dataFuzzy = dataItem.map((item, index) => ({
+      name:item.title,
+      harga: item.price,
+      ketinggian: item.highest,
+      jarak: dataJarak[index].jarak,
+    }));
+    
+    const weights = [5, 3, 5];
+
+    
+    try {
+      const { rankings, idealPositive, idealNegative } = await topsis(dataFuzzy, weights);
+  
+      const response = {
+        rankings,
+        idealPositive,
+        idealNegative,
+        
+      };
+  
+      res.json(response);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }  
 };
