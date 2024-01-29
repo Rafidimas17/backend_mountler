@@ -1,6 +1,22 @@
 const midtransClient = require("midtrans-client");
 const Booking = require("../../models/Booking");
 const Porter = require("../../models/Porter");
+
+async function notificationHandler(notificationJson) {
+    let apiClient = new midtransClient.CoreApi({
+      isProduction: true,
+      serverKey: "Mid-server-0r5eUCl0xdv1gR8SMAnzQa1o",
+      clientKey: "Mid-client-nThIyVI0-hZOkmHV",
+    });
+    return apiClient.transaction
+      .notification(notificationJson)
+      .then((statusResponse) => {
+       return statusResponse
+      });
+}
+
+
+
 async function handleTransactionNotification(notificationJson) {
   let apiClient = new midtransClient.Snap({
     isProduction: false,
@@ -67,6 +83,133 @@ async function generateQRCode(text, fileName, condition, invoice) {
   }
 }
 module.exports = {
+  getNotificationHandler: async (req, res) => {
+      const {
+        currency,
+        fraud_status,
+        gross_amount,
+        order_id,
+        payment_type,
+        status_code,
+        status_message,
+        transaction_id,
+        transaction_status,
+        transaction_time,
+        bank,
+        va_number,
+      } = req.body;
+  
+      try {         
+            let notificationJson = {
+              currency,
+              fraud_status,
+              gross_amount,
+              order_id,
+              payment_type,
+              status_code,
+              status_message,
+              transaction_id,
+              transaction_status,
+              transaction_time,
+              va_numbers: [{ bank, va_number }],
+            };
+  
+            const paymentStatus = await notificationHandler(
+              notificationJson
+            );
+            
+            const apiUrl = 'http://127.0.0.1:8000/api/payments/midtrans-notification';
+            const response = await axios.post(apiUrl, paymentStatus );   
+            
+            //INVO 
+            if(paymentStatus.transaction_status==="pending" && paymentStatus.order_id.slice(0, 4)==="INVO"){                
+                const apiUrl = 'https://api.involuntir.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="settlement" && paymentStatus.order_id.slice(0, 4)==="INVO"){
+                const apiUrl = 'https://api.involuntir.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="failure" && paymentStatus.order_id.slice(0, 4)==="INVO"){
+                const apiUrl = 'https://api.involuntir.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="expire" && paymentStatus.order_id.slice(0, 4)==="INVO"){
+                const apiUrl = 'https://api.involuntir.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="cancel" && paymentStatus.order_id.slice(0, 4)==="INVO"){
+                const apiUrl = 'https://api.involuntir.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            
+            // INVD
+            else if(paymentStatus.transaction_status==="pending" && paymentStatus.order_id.slice(0, 4)==="INVO"){                
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="settlement" && paymentStatus.order_id.slice(0, 4)==="INVD"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="failure" && paymentStatus.order_id.slice(0, 4)==="INVD"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="expire" && paymentStatus.order_id.slice(0, 4)==="INVD"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="cancel" && paymentStatus.order_id.slice(0, 4)==="INVD"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+
+            // INVT
+            else if(paymentStatus.transaction_status==="pending" && paymentStatus.order_id.slice(0, 4)==="INVT"){                
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="settlement" && paymentStatus.order_id.slice(0, 4)==="INVT"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="failure" && paymentStatus.order_id.slice(0, 4)==="INVT"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="expire" && paymentStatus.order_id.slice(0, 4)==="INVT"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+            else if(paymentStatus.transaction_status==="cancel" && paymentStatus.order_id.slice(0, 4)==="INVT"){
+                const apiUrl = 'https://api.peduly.com/api/payments/midtrans-notification';
+                const response = await axios.post(apiUrl, paymentStatus );            
+                res.json(response.data);
+            }
+           
+                                        
+
+      } catch (error) {      
+        res
+          .status(500)
+          .json({ success: false, message: "Internal Server Error" });
+      }
+    },
   getNotification: async (req, res) => {
     const {
       currency,
