@@ -21,7 +21,7 @@ router.get(
 router.get("/view-profile/:id", authorization, apiController.viewProfile);
 router.get("/dashboard/:id", authorization, apiController.viewDashboard);
 router.get("/payment-success", testController.getNotification);
-router.post("/payment-success", testController.getNotification);
+router.post("/payment-notification", testController.getNotificationHandler);
 
 router.get("/list-porter/:invoice", authorization, apiController.getPorter);
 router.post("/order-porter", authorization, apiController.orderPorter);
